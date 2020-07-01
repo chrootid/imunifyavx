@@ -147,18 +147,14 @@ printf "ImunifyAV signatures: ${green}update completed ${reset}\n"
 
 # scan duration
 function scan_duration {
-# second(s)
 if [[ $DURATION -lt 60 ]];then
 	DURATION=$(echo $DURATION second[s])
-# minute(s)
 elif [[ $DURATION -ge 60 ]] && [[ $DURATION -lt 3600 ]];then
 	DURATION=$(expr $DURATION / 60)
 	DURATION=$(echo $DURATION minute[s])
-# hour(s)
 elif [[ $DURATION -ge 3600 ]] && [[ $DURATION -lt 86400 ]];then
 	DURATION=$(expr $DURATION / 3600)
 	DURATION=$(echo $DURATION hour[s])
-# day(s)
 elif [[ $DURATION -ge 86400 ]] && [[ $DURATION -lt 604800 ]];then
 	DURATION=$(expr $DURATION / 86400)
 	DURATION=$(echo $DURATION day[s])
