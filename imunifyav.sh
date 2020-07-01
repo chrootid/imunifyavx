@@ -169,7 +169,7 @@ fi
 function status_check {
 i=1
 bar="/-\|"
-printf "ImunifyAV on-demand scan:${yellow} $STATUS ${reset}[ "
+printf "ImunifyAV on-demand scan:${yellow} $STATUS ${reset}["
 while [[ $STATUS == "running" ]];do
     printf "\b${bar:i++%${#bar}:1}"
     sleep 0.001s
@@ -180,7 +180,7 @@ printf "] ${red}$STATUS ${reset}\n"
 # calculating malware scan result
 i=1
 DURATION=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $3}')
-printf "ImunifyAV on-demand scan:${yellow} calculating ${reset}[ "
+printf "ImunifyAV on-demand scan:${yellow} calculating ${reset}["
 while [[ $DURATION == "None" ]];do
     printf "\b${bar:i++%${#bar}:1}"
     sleep 0.001s
