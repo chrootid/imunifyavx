@@ -72,20 +72,20 @@ else
 fi
  
 # cpanel check
-#echo -n "Checking cpanel: "
-#if [[ -f /var/cpanel/mainip ]];then
-#    if [[ $(IP=$(cat /var/cpanel/mainip);lynx -dump https://verify.cpanel.net/app/verify?ip=$IP|grep "cPanel/WHM active"|awk '{print $4}') == active ]]; then
-#        printf "${green}OK ${reset}\n"
-#    else
-#        printf "${red}FAILED ${reset}\n"
-#        echo "invalid license"
-#        exit
-#    fi
-#else
-#    printf "${red}FAILED ${reset}\n"
-#    echo "This script wont work without cPanel/WHM license"
-#    exit
-#fi
+echo -n "Checking cpanel: "
+if [[ -f /var/cpanel/mainip ]];then
+    if [[ $(IP=$(cat /var/cpanel/mainip);lynx -dump https://verify.cpanel.net/app/verify?ip=$IP|grep "cPanel/WHM active"|awk '{print $4}') == active ]]; then
+        printf "${green}OK ${reset}\n"
+    else
+        printf "${red}FAILED ${reset}\n"
+        echo "invalid license"
+        exit
+    fi
+else
+    printf "${red}FAILED ${reset}\n"
+    echo "This script wont work without cPanel/WHM license"
+    exit
+fi
 
 # imunifyav check
 echo -n "Checking imunifyav: "
