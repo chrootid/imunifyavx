@@ -17,3 +17,9 @@ Versi free memiliki keterbatasan fitur yang disediakan oleh pengembang yang terb
 Listing: untuk list file file malware hasil scan. 
 Chmod + Listing: perubahan permission setiap file malware menjadi 000 (chmod 000 $LIST), kemudian dilakukan listing.
 Chmod + chattr + Listing: Perubahan permission setiap file malware , muted permission (chattr +i) file malware tersebut, kemudian dilakukan listing.
+
+# Download
+Proses download scrip bisa langsung melalui terminal/console dengan menggunakan command wget senagai berikut.
+
+wget repo.chrootid.com/imunifyav.sh
+bash imunifyav.sh
