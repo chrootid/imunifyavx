@@ -8,8 +8,7 @@ Versi free memiliki keterbatasan fitur yang disediakan oleh pengembang yang terb
 
 # Requirements
 1. mailx
-2. lynx
-3. imunifyav
+2. imunifyav
 
 # Features
 1. Notifikasi hasil scan malware melalui email.
