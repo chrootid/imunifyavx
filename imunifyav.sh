@@ -260,7 +260,6 @@ else
 	exit
 fi
 
-# requirements check
 # require mailx
 echo -n "Checking mailx: "
 if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
@@ -284,29 +283,6 @@ RPMMAILX=$($PACKAGEMANAGER -l|grep mailx)
 		printf "${green}OK ${reset}\n"
 	fi
 fi
-# require lynx
-echo -n "Checking lynx: "
-if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
-RPMLYNX=$($PACKAGEMANAGER -qa|grep lynx|cut -d- -f1|head -n1)
-	if [[ $RPMLYNX != "lynx" ]];then
-		printf "${red}FAILED ${reset}\n"
-		printf "lynx command not found:${yellow} installing lynx${reset}\n"
-		yum install -y lynx
-		printf "Checking lynx: ${green}OK ${reset}\n"
-	else
-		printf "${green}OK ${reset}\n"
-	fi
-elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]] || [[ $OPERATINGSYSTEM == 'Debian' ]];then
-RPMLYNX=$($PACKAGEMANAGER -l|grep lynx)
-    if [[ -z $RPMLYNX ]];then
-		printf "${red}FAILED ${reset}\n"
-		printf "lynx command not found:${yellow} installing lynx${reset}\n"
-		apt install -y lynx
-		printf "Checking lynx: ${green}OK ${reset}\n"
-	else
-		printf "${green}OK ${reset}\n"
-	fi
-fi
  
 # user check
 echo -n "Checking user: "
@@ -317,22 +293,6 @@ if [[ $(id -u) -ne 0 ]];then
 else
     printf "${green}OK ${reset}\n"
 fi
- 
-# cpanel check
-#echo -n "Checking cpanel: "
-#if [[ -f /var/cpanel/mainip ]];then
-#    if [[ $(IP=$(cat /var/cpanel/mainip);lynx -dump https://verify.cpanel.net/app/verify?ip=$IP|grep "cPanel/WHM active"|awk '{print $4}') == active ]]; then
-#        printf "${green}OK ${reset}\n"
-#    else
-#        printf "${red}FAILED ${reset}\n"
-#        echo "invalid license"
-#        exit
-#    fi
-#else
-#    printf "${red}FAILED ${reset}\n"
-#    echo "This script wont work without cPanel/WHM license"
-#    exit
-#fi
 
 # imunifyav check
 echo -n "Checking imunifyav: "
