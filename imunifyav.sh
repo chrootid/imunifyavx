@@ -91,6 +91,16 @@ function load_scan_result {
     TOTAL_MALICIOUS=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $12}')
 }
 
+# 
+function mailling_to_user {
+    # Send to contact email?
+    if [[ $SENDTO == enabled ]];then
+    printf "Sending to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${green} $SENDTO ${reset}\n"
+        mail -s "MALWARE SCAN REPORT: $MAINDOMAIN $DATE" $CONTACT < $TMPLOG
+    else
+        printf "Send to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${red} $SENDTO ${reset}\n"
+    fi
+}
 # print scan result
 function print_scan_result {
 	echo "Hostname        : $HOSTNAME" > $LOGFILE
@@ -109,38 +119,87 @@ function print_scan_result {
 	echo "" >> $LOGFILE
 }
 
+# os check
+function os_check {
+	if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
+			cpanel_mode_process
+	elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]];then
+			ubuntu_mode_process
+	fi
+}
 # MODE option
 function mode_options {
 case $MODE in
     1) # ls
 		MODE=1
 		MESSAGE="ls (listing only)"
-		cpanel_mode_process
+		os_check
     ;;
     2) # chmod ls
 		MODE=2
 		MESSAGE="chmod 000 + ls"
-		cpanel_mode_process
+		os_check
     ;;
     3) # chmod chattr ls
 		MODE=3
 		MESSAGE="chmod 000, chattr +i, ls"
-		cpanel_mode_process
+		os_check
     ;;
     *) echo "MODE Options: {1|2|3} ?"
     ;;
 esac
 }
- 
+
+# MODE action
+function mode_action {
+LIMIT=$TOTAL_MALICIOUS
+imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read USERS;do
+if [[ $MODE -eq 1 ]];then # ls
+    echo -e "Location: \t\t\t Type:" > $TMPLOG2
+    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+elif [[ $MODE -eq 2 ]];then # chmod ls
+    echo -e "Location: \t\t\t Type:" > $TMPLOG2
+    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+        if [ -f $LIST ];then
+            chmod 000 $LIST
+        fi
+    done
+elif [[ $MODE -eq 3 ]];then # chmod chattr ls
+    echo -e "Location: \t\t\t Type:" > $TMPLOG2
+    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}'|sort >> $TMPLOG2
+    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+		if [ -f $LIST ];then
+            chmod 000 $LIST
+            chattr +i $LIST
+        fi
+    done
+fi
+cat $TMPLOG >> $LOGFILE
+/usr/bin/column -t $TMPLOG2 >> $TMPLOG
+/usr/bin/column -t $TMPLOG2 >> $LOGFILE
+echo "" >> $TMPLOG
+echo "" >> $LOGFILE
+mailling_to_user
+}
+
 # MODE process
+function ubuntu_mode_process {
+print_scan_result
+mode_action
+done
+}
+
 function cpanel_mode_process {
 print_scan_result
 LIMIT=$TOTAL_MALICIOUS
 imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read USERS;do
-        MAINDOMAIN=$(grep $USERS /etc/userdatadomains|grep main|cut -d"=" -f7)
+        MAINDOMAIN=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d"=" -f7)
+        OWNER=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d'=' -f3)
         CONTACT=$(grep CONTACTEMAIL /var/cpanel/users/$USERS|cut -d"=" -f2|head -n1)
         TOTALMAL=$(imunify-antivirus malware malicious list --limit $LIMIT|grep $SCANID |grep $USERS|wc -l)
         echo "Username        : $USERS" > $TMPLOG
+        echo "Ownership        : $OWNER" >> $TMPLOG
         echo "Main Domain     : $MAINDOMAIN" >> $TMPLOG
         echo "Contact Email   : $CONTACT" >> $TMPLOG
         echo "Total Malicious : Found $TOTALMAL malicious file(s)" >> $TMPLOG
@@ -170,14 +229,7 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
 		/usr/bin/column -t $TMPLOG2 >> $LOGFILE
         echo "" >> $TMPLOG
         echo "" >> $LOGFILE
-
-        # Send to contact email?
-        if [[ $SENDTO == enabled ]];then
-            printf "Sending to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${green} $SENDTO ${reset}\n"
-            mail -s "MALWARE SCAN REPORT: $MAINDOMAIN $DATE" $CONTACT < $TMPLOG
-        else
-            printf "Send to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${red} $SENDTO ${reset}\n"
-        fi
+		mailling_to_user
 done
 mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
 printf "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}\n"
@@ -191,10 +243,9 @@ if [[ -f /usr/bin/hostnamectl ]];then
 		printf "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
 		PACKAGEMANAGER=/bin/rpm
 	elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]];then
-		printf "${red} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
-		printf "ImunifyAVX: ${red}FAILED${reset}\n"
-		echo "Unsupported OS yet"
-		exit
+		PACKAGEMANAGER=/bin/dpkg
+		printf "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
+		
 	fi
 elif [[ -f /etc/redhat-release ]];then
 	OPERATINGSYSTEM=$(cat /etc/redhat-release|awk '{print 1}')
