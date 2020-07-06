@@ -300,8 +300,8 @@ elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]] || [[ $OPERATINGSYSTEM == 'Debian' ]];th
 RPMLYNX=$($PACKAGEMANAGER -l|grep lynx)
     if [[ -z $RPMLYNX ]];then
 		printf "${red}FAILED ${reset}\n"
-		printf "mail command not found:${yellow} installing lynx${reset}\n"
-		apt install -y mailx
+		printf "lynx command not found:${yellow} installing lynx${reset}\n"
+		apt install -y lynx
 		printf "Checking lynx: ${green}OK ${reset}\n"
 	else
 		printf "${green}OK ${reset}\n"
