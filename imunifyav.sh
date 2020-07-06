@@ -181,13 +181,13 @@ cat $TMPLOG >> $LOGFILE
 echo "" >> $TMPLOG
 echo "" >> $LOGFILE
 mailling_to_user
+done
 }
 
 # MODE process
 function ubuntu_mode_process {
-print_scan_result
-mode_action
-done
+	print_scan_result
+	mode_action
 }
 
 function cpanel_mode_process {
@@ -242,7 +242,7 @@ if [[ -f /usr/bin/hostnamectl ]];then
 	if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
 		printf "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
 		PACKAGEMANAGER=/bin/rpm
-	elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]];then
+	elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]] || [[ $OPERATINGSYSTEM == 'Debian' ]];then
 		PACKAGEMANAGER=/bin/dpkg
 		printf "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
 		
@@ -263,26 +263,49 @@ fi
 # requirements check
 # require mailx
 echo -n "Checking mailx: "
+if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
 RPMMAILX=$($PACKAGEMANAGER -qa|grep mailx|cut -d- -f1|head -n1)
-if [[ $RPMMAILX != "mailx" ]];then
-    printf "${red}FAILED ${reset}\n"
-    printf "mail command not found:${yellow} installing mailx${reset}\n"
-    yum install -y mailx
-    printf "Checking mailx: ${green}OK ${reset}\n"
-else
-    printf "${green}OK ${reset}\n"
+	if [[ $RPMMAILX != "mailx" ]];then
+		printf "${red}FAILED ${reset}\n"
+		printf "mail command not found:${yellow} installing mailx${reset}\n"
+		yum install -y mailx
+		printf "Checking mailx: ${green}OK ${reset}\n"
+	else
+		printf "${green}OK ${reset}\n"
+	fi
+elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]] || [[ $OPERATINGSYSTEM == 'Debian' ]];then
+RPMMAILX=$($PACKAGEMANAGER -l|grep mailx)
+	if [[ -z $RPMMAILX ]];then
+		printf "${red}FAILED ${reset}\n"
+		printf "mail command not found:${yellow} installing mailx${reset}\n"
+		apt install -y mailx
+		printf "Checking mailx: ${green}OK ${reset}\n"
+	else
+		printf "${green}OK ${reset}\n"
+	fi
 fi
-
 # require lynx
 echo -n "Checking lynx: "
+if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
 RPMLYNX=$($PACKAGEMANAGER -qa|grep lynx|cut -d- -f1|head -n1)
-if [[ $RPMLYNX != "lynx" ]];then
-    printf "${red}FAILED ${reset}\n"
-    printf "lynx command not found:${yellow} installing lynx${reset}\n"
-    yum install -y lynx
-    printf "Checking lynx: ${green}OK ${reset}\n"
-else
-    printf "${green}OK ${reset}\n"
+	if [[ $RPMLYNX != "lynx" ]];then
+		printf "${red}FAILED ${reset}\n"
+		printf "lynx command not found:${yellow} installing lynx${reset}\n"
+		yum install -y lynx
+		printf "Checking lynx: ${green}OK ${reset}\n"
+	else
+		printf "${green}OK ${reset}\n"
+	fi
+elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]] || [[ $OPERATINGSYSTEM == 'Debian' ]];then
+RPMLYNX=$($PACKAGEMANAGER -l|grep lynx)
+    if [[ -z $RPMLYNX ]];then
+		printf "${red}FAILED ${reset}\n"
+		printf "mail command not found:${yellow} installing lynx${reset}\n"
+		apt install -y mailx
+		printf "Checking lynx: ${green}OK ${reset}\n"
+	else
+		printf "${green}OK ${reset}\n"
+	fi
 fi
  
 # user check
