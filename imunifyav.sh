@@ -2,28 +2,16 @@
 # manual = https://docs.imunifyav.com/cli/
 # Powered by ImunifyAV / imunifyav.com
 # Developed by ChrootID / chrootid.com
- 
-# report to
-EMAIL=thaufan@ardhosting.com
- 
+
 # date process
 DATE=$(date +%F)
- 
-# destination scan directory
-SCANDIR="/home*/*"
- 
+
 # logging
 TMPLOG=/var/log/malwares.txt
 TMPLOG2=/var/log/malwares2.txt
 LOGFILE=/var/log/imunifyav-$DATE.txt
 LOGROTATE=5
- 
-# malware scan result MODE option
-# 1 = ls
-# 2 = chmod ls
-# 3 = chmod chattr ls
-MODE=1
- 
+
 # cpanel user contact email notification
 # enabled
 # disabled
@@ -91,8 +79,18 @@ function load_scan_result {
     TOTAL_MALICIOUS=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $12}')
 }
 
-# 
-function mailling_to_user {
+# mailreport to mailadmin
+function malware_report_to_mailadmin {
+	if [[ ! -z $EMAIL ]];then
+		mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
+	elif [[ -z $EMAIL ]];then
+		printf "Please define your ${red}email address${reset} to recieve malware scan report\n"
+		printf "$0 --email=[${red}youremail@address.com${reset}]\n"
+	fi
+}
+
+# mailreport to mail user
+function malware_report_to_mailuser {
     # Send to contact email?
     if [[ $SENDTO == enabled ]];then
     printf "Sending to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${green} $SENDTO ${reset}\n"
@@ -108,17 +106,17 @@ case $MODE in
     1) # ls
 		MODE=1
 		MESSAGE="ls (listing only)"
-		os_check
+		hostingpanel_check
     ;;
     2) # chmod ls
 		MODE=2
-		MESSAGE="chmod 000 + ls"
-		os_check
+		MESSAGE="chmod 000"
+		hostingpanel_check
     ;;
     3) # chmod chattr ls
 		MODE=3
-		MESSAGE="chmod 000, chattr +i, ls"
-		os_check
+		MESSAGE="chmod 000 && chattr +i"
+		hostingpanel_check
     ;;
     *) echo "MODE Options: {1|2|3} ?"
     ;;
@@ -126,7 +124,7 @@ esac
 }
 
 # os check
-function os_check {
+function hostingpanel_check {
 	if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
 		if [[ -f /usr/local/cpanel/version ]];then
 			HOSTINGPANEL=$(echo "cPanel/WHM" $(cat /usr/local/cpanel/version))
@@ -148,15 +146,7 @@ function os_check {
 function standalone_mode_process {
 	print_scan_result
 	mode_action
-	mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
-	printf "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}\n"
-}
-
-# plesk mode process
-function plesk_mode_process {
-	print_scan_result
-	mode_action
-	mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
+	malware_report_to_mailadmin
 	printf "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}\n"
 }
 
@@ -200,9 +190,9 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
 		/usr/bin/column -t $TMPLOG2 >> $LOGFILE
         echo "" >> $TMPLOG
         echo "" >> $LOGFILE
-		mailling_to_user
+		malware_report_to_mailuser
 done
-mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
+malware_report_to_mailadmin
 printf "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}\n"
 }
 
@@ -257,9 +247,55 @@ function mode_action {
 	/usr/bin/column -t $TMPLOG2 >> $LOGFILE
 	echo "" >> $TMPLOG
 	echo "" >> $LOGFILE
-	mailling_to_user
+	malware_report_to_mailuser
 	done
 }
+
+# usage
+function usage {
+        echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]"
+        echo ""
+        echo "-e, --email=[EMAIL ADDRESS]        sending malware scan report to an email address"
+        echo "-m, --mode=[ACTION MODE]           default value is 1"
+        echo "     1 = ls                        only for print malicious file list"
+        echo "     2 = chmod 000                 change permission malicious files to 000"
+        echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable"
+        echo "-p, --path[PATH]                   scan directory, default value is /home*/*"
+		echo "-h, --help                         show usage information"
+        echo ""
+        echo "Example:"
+        echo "$0 --email=youremail@address.com --mode=1 --p=/home/"
+        echo "$0 -e=your@email.com -m=1 -p=/home/"
+}
+
+##### main
+for i in "$@"
+do
+case $i in
+    -e=*|--email=*)
+        EMAIL="${i#*=}"
+        shift
+        ;;
+    -m=*|--mode=*)
+        MODE="${i#*=}"
+        shift
+        ;;
+    -p=*|--path=*)
+        SCANDIR="${i#*=}"
+        shift
+        ;;
+	-h|--help)
+		usage
+		exit
+		;;
+    *)
+        usage
+        exit
+        ;;
+esac
+done
+if [[ -z $MODE ]];then MODE=1;fi
+if [[ -z $SCANDIR ]];then SCANDIR='/home*/*';fi
 
 # os validation check
 echo -n "Checking Operating System:"
@@ -395,7 +431,7 @@ printf " sigs-php:${green} $(imunify-antivirus update sigs-php) ${reset}\n"
 printf " ossecp:${green} $(imunify-antivirus update ossec) ${reset}\n"
 printf "ImunifyAV signatures: ${green}update completed ${reset}\n"
 
-# main scan process
+# scan process
 STATUS=$(imunify-antivirus malware on-demand status|grep status|awk '{print $2}')
 if [[ $STATUS == "stopped" ]];then
 	printf "ImunifyAV on-demand scan:${red} $STATUS ${reset}\n"
