@@ -13,18 +13,21 @@ Versi free memiliki keterbatasan fitur yang disediakan oleh pengembang yang terb
 # Features
 1. Notifikasi hasil scan malware melalui email.
 2. Action mode untuk proses eksekusi terhadap file malware. Saat ini terdapat tiga opsi
-Listing: untuk list file file malware hasil scan. 
-Chmod + Listing: perubahan permission setiap file malware menjadi 000 (chmod 000 $LIST), kemudian dilakukan listing.
-Chmod + chattr + Listing: Perubahan permission setiap file malware , muted permission (chattr +i) file malware tersebut, kemudian dilakukan listing.
+- Listing: untuk list file file malware hasil scan. 
+- Chmod + Listing: perubahan permission setiap file malware menjadi 000 (chmod 000 $LIST), kemudian dilakukan listing.
+- Chmod + chattr + Listing: Perubahan permission setiap file malware , muted permission (chattr +i) file malware tersebut, kemudian dilakukan listing.
 
 # Download
 Proses download script bisa langsung melalui terminal/console dengan menggunakan command wget sebagai berikut.
-
+```
 wget repo.chrootid.com/imunifyav.sh && bash imunifyav.sh
+```
 
 # Usage
-imunifyav.sh
-USAGE: /root/positionalparameter.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]
+`imunifyav.sh --help`
+
+```
+USAGE: imunifyav.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]
 -e, --email=[EMAIL ADDRESS]        sending malware scan report to an email address
 -m, --mode=[ACTION MODE]           default value is 1
      1 = ls                        only for print malicious file list
@@ -33,5 +36,6 @@ USAGE: /root/positionalparameter.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE]
 -p, --path[PATH]                   scan directory, default value is /home*/*
 -h, --help                         show usage information
 Example:
-/root/positionalparameter.sh --email=youremail@address.com --mode=1 --p=/home/
-/root/positionalparameter.sh -e=your@email.com -m=1 -p=/home/
+imunifyav.sh --email=youremail@address.com --mode=1 --p=/home/
+imunifyav.sh -e=your@email.com -m=1 -p=/home/
+```
