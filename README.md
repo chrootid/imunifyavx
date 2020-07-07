@@ -21,3 +21,17 @@ Chmod + chattr + Listing: Perubahan permission setiap file malware , muted permi
 Proses download script bisa langsung melalui terminal/console dengan menggunakan command wget sebagai berikut.
 
 wget repo.chrootid.com/imunifyav.sh && bash imunifyav.sh
+
+# Usage
+imunifyav.sh
+USAGE: /root/positionalparameter.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]
+-e, --email=[EMAIL ADDRESS]        sending malware scan report to an email address
+-m, --mode=[ACTION MODE]           default value is 1
+     1 = ls                        only for print malicious file list
+     2 = chmod 000                 change permission malicious files to 000
+     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable
+-p, --path[PATH]                   scan directory, default value is /home*/*
+-h, --help                         show usage information
+Example:
+/root/positionalparameter.sh --email=youremail@address.com --mode=1 --p=/home/
+/root/positionalparameter.sh -e=your@email.com -m=1 -p=/home/
