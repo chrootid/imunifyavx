@@ -243,7 +243,10 @@ if [[ -f /usr/bin/hostnamectl ]];then
 		printf "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
 		PACKAGEMANAGER=/bin/rpm
 	elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]] || [[ $OPERATINGSYSTEM == 'Debian' ]];then
-		PACKAGEMANAGER=/bin/dpkg
+		PACKAGEMANAGER=/usr/bin/dpkg
+		mkdir -p /etc/sysconfig/imunify360/
+		echo "[paths]" > /etc/sysconfig/imunify360/integration.conf
+		echo "ui_path = /var/www/html" >> /etc/sysconfig/imunify360/integration.conf
 		printf "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
 		
 	fi
