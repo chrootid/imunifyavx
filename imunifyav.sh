@@ -4,7 +4,7 @@
 # Developed by ChrootID / chrootid.com
  
 # report to
-EMAIL=thaufan@ardhosting.com
+EMAIL=adit@chrootid.com
  
 # date process
 DATE=$(date +%F)
