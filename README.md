@@ -20,5 +20,4 @@ Chmod + chattr + Listing: Perubahan permission setiap file malware , muted permi
 # Download
 Proses download script bisa langsung melalui terminal/console dengan menggunakan command wget sebagai berikut.
 
-wget repo.chrootid.com/imunifyav.sh
-bash imunifyav.sh
+wget repo.chrootid.com/imunifyav.sh && bash imunifyav.sh
