@@ -199,7 +199,7 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
         CONTACT=$(grep CONTACTEMAIL /var/cpanel/users/$USERS|cut -d"=" -f2|head -n1)
         TOTALMAL=$(imunify-antivirus malware malicious list --limit $LIMIT|grep $SCANID |grep $USERS|wc -l)
         echo "Username        : $USERS" > $TMPLOG
-        echo "Ownership        : $OWNER" >> $TMPLOG
+        echo "Ownership       : $OWNER" >> $TMPLOG
         echo "Main Domain     : $MAINDOMAIN" >> $TMPLOG
         echo "Contact Email   : $CONTACT" >> $TMPLOG
         echo "Total Malicious : Found $TOTALMAL malicious file(s)" >> $TMPLOG
