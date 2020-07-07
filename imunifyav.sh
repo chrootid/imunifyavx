@@ -4,7 +4,7 @@
 # Developed by ChrootID / chrootid.com
  
 # report to
-EMAIL=adit@chrootid.com
+EMAIL=thaufan@ardhosting.com
  
 # date process
 DATE=$(date +%F)
@@ -101,6 +101,7 @@ function mailling_to_user {
         printf "Send to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${red} $SENDTO ${reset}\n"
     fi
 }
+
 # print scan result
 function print_scan_result {
 	echo "Hostname        : $HOSTNAME" > $LOGFILE
@@ -122,9 +123,15 @@ function print_scan_result {
 # os check
 function os_check {
 	if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
+		if [[ -f /var/cpanel/mainip ]];then
 			cpanel_mode_process
+		else
+			standalone_mode_process
+		fi
 	elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]];then
-			ubuntu_mode_process
+		ubuntu_mode_process
+	else
+		standalone_mode_process
 	fi
 }
 # MODE option
@@ -152,44 +159,57 @@ esac
 
 # MODE action
 function mode_action {
-LIMIT=$TOTAL_MALICIOUS
-imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read USERS;do
-if [[ $MODE -eq 1 ]];then # ls
-    echo -e "Location: \t\t\t Type:" > $TMPLOG2
-    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
-elif [[ $MODE -eq 2 ]];then # chmod ls
-    echo -e "Location: \t\t\t Type:" > $TMPLOG2
-    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
-    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
-        if [ -f $LIST ];then
-            chmod 000 $LIST
-        fi
-    done
-elif [[ $MODE -eq 3 ]];then # chmod chattr ls
-    echo -e "Location: \t\t\t Type:" > $TMPLOG2
-    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}'|sort >> $TMPLOG2
-    imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
-		if [ -f $LIST ];then
-            chmod 000 $LIST
-            chattr +i $LIST
-        fi
-    done
-fi
-cat $TMPLOG >> $LOGFILE
-/usr/bin/column -t $TMPLOG2 >> $TMPLOG
-/usr/bin/column -t $TMPLOG2 >> $LOGFILE
-echo "" >> $TMPLOG
-echo "" >> $LOGFILE
-mailling_to_user
-done
+	LIMIT=$TOTAL_MALICIOUS
+	imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read USERS;do
+	echo "Username      : $USERS" > $TMPLOG
+	if [[ $MODE -eq 1 ]];then # ls
+		echo -e "Location: \t\t\t Type:" > $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+	elif [[ $MODE -eq 2 ]];then # chmod ls
+		echo -e "Location: \t\t\t Type:" > $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+			if [ -f $LIST ];then
+				chmod 000 $LIST
+			fi
+		done
+	elif [[ $MODE -eq 3 ]];then # chmod chattr ls
+		echo -e "Location: \t\t\t Type:" > $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}'|sort >> $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+			if [ -f $LIST ];then
+				chmod 000 $LIST
+				chattr +i $LIST
+			fi
+		done
+	fi
+	cat $TMPLOG >> $LOGFILE
+	/usr/bin/column -t $TMPLOG2 >> $TMPLOG
+	/usr/bin/column -t $TMPLOG2 >> $LOGFILE
+	echo "" >> $TMPLOG
+	echo "" >> $LOGFILE
+	mailling_to_user
+	done
 }
 
-# MODE process
+## MODE process
+# standalone mode process
+function standalone_mode_process {
+	print_scan_result
+	mode_action
+	mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
+	printf "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}\n"
+}
+
+# ubuntu mode process
 function ubuntu_mode_process {
 	print_scan_result
 	mode_action
+	mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
+	printf "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}\n"
 }
 
+# cpanel mode process
 function cpanel_mode_process {
 print_scan_result
 LIMIT=$TOTAL_MALICIOUS
@@ -244,9 +264,13 @@ if [[ -f /usr/bin/hostnamectl ]];then
 		PACKAGEMANAGER=/bin/rpm
 	elif [[ $OPERATINGSYSTEM == 'Ubuntu' ]] || [[ $OPERATINGSYSTEM == 'Debian' ]];then
 		PACKAGEMANAGER=/usr/bin/dpkg
-		mkdir -p /etc/sysconfig/imunify360/
-		echo "[paths]" > /etc/sysconfig/imunify360/integration.conf
-		echo "ui_path = /var/www/html" >> /etc/sysconfig/imunify360/integration.conf
+		if [[ ! -d /etc/sysconfig/imunify360/ ]];then
+			mkdir -p /etc/sysconfig/imunify360/
+		fi
+		if [[ ! -f /etc/sysconfig/imunify360/integration.conf ]];then
+			echo "[paths]" > /etc/sysconfig/imunify360/integration.conf
+			echo "ui_path = /var/www/html" >> /etc/sysconfig/imunify360/integration.conf
+		fi
 		printf "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}\n"
 		
 	fi
@@ -257,7 +281,7 @@ elif [[ -f /etc/redhat-release ]];then
 		PACKAGEMANAGER=/bin/rpm
 	fi
 else
-	printf "${red} Unknown ${reset}\n"
+	printf "${red} $OPERATINGSYSTEM ${reset}\n"
 	printf "ImunifyAVX: ${red}FAILED${reset}\n"
 	echo "Unsupported yet"
 	exit
@@ -392,12 +416,14 @@ else
 fi
  
 # log rotate
-TOTAL_LOG=$(ls /var/log/imunifyav-*.txt|wc -l)
-if [[ $TOTAL_LOG -gt $LOGROTATE ]];then
-    DELETELOG=$(expr $TOTAL_LOG - $LOGROTATE)
-    ls /var/log/imunifyav-*.txt|sort|head -n $DELETELOG|while read DELETE;do
-        if [ -f $DELETE ];then
-            rm -f $DELETE;
-        fi
-    done 
+if [[ -f $LOGFILE ]];then
+	TOTAL_LOG=$(ls /var/log/imunifyav-*.txt|wc -l)
+	if [[ $TOTAL_LOG -gt $LOGROTATE ]];then
+		DELETELOG=$(expr $TOTAL_LOG - $LOGROTATE)
+		ls /var/log/imunifyav-*.txt|sort|head -n $DELETELOG|while read DELETE;do
+			if [ -f $DELETE ];then
+				rm -f $DELETE;
+			fi
+		done 
+	fi
 fi
