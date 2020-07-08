@@ -25,22 +25,22 @@ X merupakan penamaan variable cross platform pada script yang ditujukan untuk ko
 # Download
 Proses download script bisa langsung melalui terminal/console dengan menggunakan command wget sebagai berikut.
 ```
-wget repo.chrootid.com/imunifyav.sh && bash imunifyav.sh
+# wget repo.chrootid.com/imunifyav.sh -O /usr/bin/imunifyav
+# imunifyav
 ```
 
 # Usage
-`imunifyav.sh --help`
-
 ```
-USAGE: imunifyav.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]
+# imunifyav --help
+USAGE: imunifyav --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]
 -e, --email=[EMAIL ADDRESS]        send malware scan report to an email address
 -m, --mode=[ACTION MODE]           default value is 1
      1 = ls                        only for print malicious file list
      2 = chmod 000                 change permission malicious files to 000
      3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable
--p, --path[PATH]                   scan directory, default value is /home*/*
+-p, --path=[PATH]                   scan directory, default value is /home*/*
 -h, --help                         show usage information
 Example:
-imunifyav.sh --email=youremail@address.com --mode=1 --p=/home/
-imunifyav.sh -e=your@email.com -m=1 -p=/home/
+imunifyav --email=youremail@address.com --mode=1 --path=/home/
+imunifyav -e=your@email.com -m=1 -p=/home/
 ```
