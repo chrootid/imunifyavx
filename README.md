@@ -38,7 +38,7 @@ USAGE: imunifyav --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]
      1 = ls                        only for print malicious file list
      2 = chmod 000                 change permission malicious files to 000
      3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable
--p, --path=[PATH]                   scan directory, default value is /home*/*
+-p, --path=[PATH]                  scan directory, default value is /home*/*
 -h, --help                         show usage information
 Example:
 imunifyav --email=youremail@address.com --mode=1 --path=/home/
