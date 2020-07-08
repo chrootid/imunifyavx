@@ -33,7 +33,7 @@ wget repo.chrootid.com/imunifyav.sh && bash imunifyav.sh
 
 ```
 USAGE: imunifyav.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]
--e, --email=[EMAIL ADDRESS]        sending malware scan report to an email address
+-e, --email=[EMAIL ADDRESS]        send malware scan report to an email address
 -m, --mode=[ACTION MODE]           default value is 1
      1 = ls                        only for print malicious file list
      2 = chmod 000                 change permission malicious files to 000
