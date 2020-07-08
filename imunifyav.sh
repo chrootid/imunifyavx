@@ -253,7 +253,7 @@ function mode_action {
 
 # usage
 function usage {
-        echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]"
+        echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]"
         echo ""
         echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to an email address"
         echo "-m, --mode=[ACTION MODE]           default value is 1"
