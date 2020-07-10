@@ -12,8 +12,9 @@ X merupakan penamaan variable cross platform pada script yang ditujukan untuk ko
 - CloudLinux 6.x / 7.x
 
 # Requirements
-1. mailx
-2. imunifyav
+1. root
+2. mailx
+3. imunifyav
 
 # Features
 1. Notifikasi hasil scan malware melalui email.
