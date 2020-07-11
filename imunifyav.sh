@@ -171,7 +171,7 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
         echo "Main Domain     : $MAINDOMAIN" >> $TMPLOG
         echo "Contact Email   : $CONTACT" >> $TMPLOG
         echo "Total Malicious : Found $TOTALMAL malicious file(s)" >> $TMPLOG
-		echo "HowTo Clean Up  : 1. Lakukan backup data terlebih dahulu sebelum permbersihan malware" >> $TMPLOG
+		echo "How To Clean Up : 1. Lakukan backup data terlebih dahulu sebelum permbersihan malware" >> $TMPLOG
 		echo "                  2. Tinjau ulang source code:" >> $TMPLOG
 		echo "                     a. Jika dalam satu file secara keseluruhan merupakan baris program malware" >> $TMPLOG
 		echo "                        maka bisa langsung dilakukan penghapusan file tersebut." >> $TMPLOG
