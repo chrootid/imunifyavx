@@ -25,7 +25,7 @@ blue='\033[1;34m'
 light_cyan='\033[1;96m'
 reset='\033[0m'
 
-# scan duration
+##### <scan duration>
 function scan_duration {
 if [[ $DURATION -lt 60 ]];then
 	DURATION=$(echo $DURATION second[s])
@@ -40,8 +40,9 @@ elif [[ $DURATION -ge 86400 ]] && [[ $DURATION -lt 604800 ]];then
 	DURATION=$(echo $DURATION day[s])
 fi
 }
+##### </scan duration>
 
-# status check
+##### <status check>
 function status_check {
 i=1
 bar="/-\|"
@@ -66,8 +67,9 @@ done
 printf "] ${green}loaded ${reset}"
 printf "\nImunifyAV on-demand scan:${green} completed ${reset}\n"
 }
+##### </status check>
 
-# load scan result
+##### <load scan result>
 function load_scan_result {
 	COMPLETED=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $1}')
 	ERROR=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $4}')
@@ -78,14 +80,16 @@ function load_scan_result {
 	TOTAL_FILES=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $11}')
     TOTAL_MALICIOUS=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $12}')
 }
+##### </load scan result>
 
+##### <mailreporting>
 # mailreport to mailadmin
 function malware_report_to_mailadmin {
 	if [[ ! -z $EMAIL ]];then
 		mail -s "MALWARE SCAN REPORT [$HOSTNAME] $DATE" $EMAIL < $LOGFILE
 	elif [[ -z $EMAIL ]];then
 		printf "Please define your ${red}email address${reset} to recieve malware scan report\n"
-		printf "$0 --email=[${red}youremail@address.com${reset}]\n"
+		printf "$0 --email=${red}youremail@address.com${reset}\n"
 	fi
 }
 
@@ -99,8 +103,9 @@ function malware_report_to_mailuser {
         printf "Send to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${red} $SENDTO ${reset}\n"
     fi
 }
+##### </mailreporting>
 
-# MODE option
+##### <MODE option>
 function mode_options {
 case $MODE in
     1) # ls
@@ -122,8 +127,9 @@ case $MODE in
     ;;
 esac
 }
+##### </MODE option>
 
-# os check
+##### <hosting panel check>
 function hostingpanel_check {
 	if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
 		if [[ -f /usr/local/cpanel/version ]];then
@@ -140,8 +146,9 @@ function hostingpanel_check {
 		standalone_mode_process
 	fi
 }
+##### </hosting panel check>
 
-## MODE process
+##### <MODE process>
 # standalone mode process
 function standalone_mode_process {
 	print_scan_result
@@ -164,6 +171,23 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
         echo "Main Domain     : $MAINDOMAIN" >> $TMPLOG
         echo "Contact Email   : $CONTACT" >> $TMPLOG
         echo "Total Malicious : Found $TOTALMAL malicious file(s)" >> $TMPLOG
+		echo "HowTo Clean Up  : 1. Lakukan backup data terlebih dahulu sebelum permbersihan malware" >> $TMPLOG
+		echo "                  2. Tinjau ulang source code:" >> $TMPLOG
+		echo "                     a. Jika dalam satu file secara keseluruhan merupakan baris program malware" >> $TMPLOG
+		echo "                        maka bisa langsung dilakukan penghapusan file tersebut." >> $TMPLOG
+		echo "                     b. Jika dalam satu file terdapat (infeksi) baris program malware" >> $TMPLOG
+		echo "                        maka cukup lakukan penghapusan baris program tersebut tanpa" >> $TMPLOG
+		echo "                        harus menghapus satu file atau ganti dengan file original dari situs resmi." >> $TMPLOG
+		echo "                  3. Kordinasikan dengan tim webdeveloper perihal permbersihan malware." >> $TMPLOG
+		echo "                  4. Pembersihan malware tersebut di luar support kami, apabila tidak" >> $TMPLOG
+		echo "                     menggunakan layanan profesional web kami." >> $TMPLOG
+		echo "                  5. Informasi perihal layanan profesional web, mulai dari pembuatan," >> $TMPLOG
+		echo "                     pengembangan, pemeliharaan web. Silahkan bisa menghubungi ..." >> $TMPLOG
+		echo "Note            : Firewall AntiVirus akan melakukan 'lock file permission' secara otomatis" >> $TMPLOG
+		echo "                  apabila belum melakukan penanganan lebih dari 6 jam setelah email ini dikirimkan" >> $TMPLOG
+		echo "                  guna menghindari infeksi malware/virus yang lebih meluas." >> $TMPLOG
+		echo "                  Silahkan rikues 'unlock file permission', kirimkan melalui email ke alamat" >> $TMPLOG
+		echo "                  $EMAIL apabila ingin langsung melakukan pembersihan malware." >> $TMPLOG
         if [[ $MODE -eq 1 ]];then # ls
             echo -e "Location: \t\t\t Type:" > $TMPLOG2
             imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
@@ -195,7 +219,9 @@ done
 malware_report_to_mailadmin
 printf "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}\n"
 }
+##### </MODE process>
 
+##### <printing>
 # print scan result
 function print_scan_result {
 	echo "Hostname        : $HOSTNAME" > $LOGFILE
@@ -215,12 +241,14 @@ function print_scan_result {
 	echo "Log File        : $LOGFILE" >> $LOGFILE
 	echo "" >> $LOGFILE
 }
+##### </printing>
 
-# MODE action
+##### <MODE action>
 function mode_action {
 	LIMIT=$TOTAL_MALICIOUS
 	imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read USERS;do
 	echo "Username        : $USERS" > $TMPLOG
+	message_tips
 	if [[ $MODE -eq 1 ]];then # ls
 		echo -e "Location: \t\t\t Type:" > $TMPLOG2
 		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
@@ -250,23 +278,25 @@ function mode_action {
 	malware_report_to_mailuser
 	done
 }
+##### </MODE action>
 
-# usage
+##### <usage>
 function usage {
-        echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --p=[PATH]"
+        echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]"
         echo ""
-        echo "-e, --email=[EMAIL ADDRESS]        sending malware scan report to an email address"
+        echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to email address"
         echo "-m, --mode=[ACTION MODE]           default value is 1"
         echo "     1 = ls                        only for print malicious file list"
         echo "     2 = chmod 000                 change permission malicious files to 000"
         echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable"
-        echo "-p, --path[PATH]                   scan directory, default value is /home*/*"
+        echo "-p, --path=[PATH]                  scan directory, default value is /home*/*"
 		echo "-h, --help                         show usage information"
         echo ""
         echo "Example:"
-        echo "$0 --email=youremail@address.com --mode=1 --p=/home/"
+        echo "$0 --email=youremail@address.com --mode=1 --path=/home/"
         echo "$0 -e=your@email.com -m=1 -p=/home/"
 }
+##### </usage>
 
 ##### main
 for i in "$@"
@@ -294,10 +324,24 @@ case $i in
         ;;
 esac
 done
-if [[ -z $MODE ]];then MODE=1;fi
-if [[ -z $SCANDIR ]];then SCANDIR='/home*/*';fi
+if [[ -z $MODE ]];then
+	MODE=1
+elif [[ $MODE -eq 0 ]];then
+	MODE=1
+elif [[ $MODE -gt 3 ]];then
+	usage
+	exit
+fi
 
-# os validation check
+if [[ -z $SCANDIR ]];then
+	SCANDIR='/home*/*'
+elif [[ ! -d $SCANDIR ]];then
+	printf "${red}$SCANDIR${reset}: not found\n"
+	usage
+	exit	
+fi
+
+##### <os validation check>
 echo -n "Checking Operating System:"
 if [[ -f /usr/bin/hostnamectl ]];then
 	OPERATINGSYSTEM=$(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2|awk '{print $1}')
@@ -328,8 +372,9 @@ else
 	echo "Unsupported yet"
 	exit
 fi
+##### </os validation check>
 
-# require mailx
+##### <require mailx>
 echo -n "Checking mailx: "
 if [[ $OPERATINGSYSTEM == 'CloudLinux' ]] || [[ $OPERATINGSYSTEM == 'CentOS' ]] || [[ $OPERATINGSYSTEM == 'Red' ]];then
 RPMMAILX=$($PACKAGEMANAGER -qa|grep mailx|cut -d- -f1|head -n1)
@@ -352,8 +397,9 @@ RPMMAILX=$($PACKAGEMANAGER -l|grep mailx)
 		printf "${green}OK ${reset}\n"
 	fi
 fi
+##### </require mailx>
  
-# user check
+##### <user check>
 echo -n "Checking user: "
 if [[ $(id -u) -ne 0 ]];then
     printf "${red}FAILED ${reset}\n"
@@ -362,8 +408,9 @@ if [[ $(id -u) -ne 0 ]];then
 else
     printf "${green}OK ${reset}\n"
 fi
+##### </user check>
 
-# imunifyav check
+##### <imunifyav check>
 echo -n "Checking imunifyav: "
 if [[ ! -f /usr/bin/imunify-antivirus ]];then
     printf "${red}FAILED ${reset}\n"
@@ -418,8 +465,9 @@ elif [[ -f /usr/bin/imunify-antivirus ]];then
 		fi
 	fi
 fi
+##### </imunifyav check>
 
-# signature update process
+##### <signature update process>
 printf "ImunifyAV signatures: ${yellow}updating ${reset}\n"
 printf " geo:${green} $(imunify-antivirus update geo) ${reset}\n"
 printf " rules:${green} $(imunify-antivirus update modsec-rules) ${reset}\n"
@@ -430,8 +478,9 @@ printf " ip-record:${green} $(imunify-antivirus update ip-record) ${reset}\n"
 printf " sigs-php:${green} $(imunify-antivirus update sigs-php) ${reset}\n"
 printf " ossecp:${green} $(imunify-antivirus update ossec) ${reset}\n"
 printf "ImunifyAV signatures: ${green}update completed ${reset}\n"
+##### </signature update process>
 
-# scan process
+##### <scan process>
 STATUS=$(imunify-antivirus malware on-demand status|grep status|awk '{print $2}')
 if [[ $STATUS == "stopped" ]];then
 	printf "ImunifyAV on-demand scan:${red} $STATUS ${reset}\n"
@@ -456,8 +505,9 @@ else
     echo "ImunifyAV on-demand scan: $STATUS"|mail -s "MALWARE SCAN FAILED: [$HOSTNAME] $DATE" $EMAIL
     exit
 fi
+##### </scan process>
  
-# log rotate
+##### <log rotate>
 if [[ -f $LOGFILE ]];then
 	TOTAL_LOG=$(ls /var/log/imunifyav-*.txt|wc -l)
 	if [[ $TOTAL_LOG -gt $LOGROTATE ]];then
@@ -469,3 +519,4 @@ if [[ -f $LOGFILE ]];then
 		done 
 	fi
 fi
+##### </log rotate>
