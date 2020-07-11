@@ -184,8 +184,8 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
 		echo "                  5. Informasi perihal layanan profesional web, mulai dari pembuatan," >> $TMPLOG
 		echo "                     pengembangan, pemeliharaan web. Silahkan bisa menghubungi ..." >> $TMPLOG
 		echo "Note            : Firewall AntiVirus akan melakukan 'lock file permission' secara otomatis" >> $TMPLOG
-		echo "                  guna menghindari infeksi malware/virus yang lebih meluas," >> $TMPLOG
 		echo "                  apabila belum melakukan permbersihan lebih dari 6 jam setelah email ini dikirimkan" >> $TMPLOG
+		echo "                  guna menghindari infeksi malware/virus yang lebih meluas," >> $TMPLOG
 		echo "                  Silahkan rikues 'unlock file permission', kirimkan melalui email ke alamat" >> $TMPLOG
 		echo "                  $EMAIL apabila ingin langsung melakukan pembersihan malware." >> $TMPLOG
         if [[ $MODE -eq 1 ]];then # ls
@@ -282,19 +282,19 @@ function mode_action {
 
 ##### <usage>
 function usage {
-        echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]"
-        echo ""
-        echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to email address"
-        echo "-m, --mode=[ACTION MODE]           default value is 1"
-        echo "     1 = ls                        only for print malicious file list"
-        echo "     2 = chmod 000                 change permission malicious files to 000"
-        echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable"
-        echo "-p, --path=[PATH]                  scan directory, default value is /home*/*"
-		echo "-h, --help                         show usage information"
-        echo ""
-        echo "Example:"
-        echo "$0 --email=youremail@address.com --mode=1 --path=/home/"
-        echo "$0 -e=your@email.com -m=1 -p=/home/"
+echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]"
+echo ""
+echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to email address"
+echo "-m, --mode=[ACTION MODE]           default value is 1"
+echo "     1 = ls                        only for print malicious file list"
+echo "     2 = chmod 000                 change permission malicious files to 000"
+echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable"
+echo "-p, --path=[PATH]                  scan directory, default value is /home*/*"
+echo "-h, --help                         show usage information"
+echo ""
+echo "Example:"
+echo "$0 --email=youremail@address.com --mode=1 --path=/home/"
+echo "$0 -e=your@email.com -m=1 -p=/home/"
 }
 ##### </usage>
 
