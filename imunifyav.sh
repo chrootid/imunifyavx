@@ -171,21 +171,21 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
         echo "Main Domain     : $MAINDOMAIN" >> $TMPLOG
         echo "Contact Email   : $CONTACT" >> $TMPLOG
         echo "Total Malicious : Found $TOTALMAL malicious file(s)" >> $TMPLOG
-		echo "How To Clean Up : 1. Lakukan backup data terlebih dahulu sebelum permbersihan malware" >> $TMPLOG
+		echo "How to Clean Up : 1. Lakukan backup data terlebih dahulu sebelum pembersihan malware" >> $TMPLOG
 		echo "                  2. Tinjau ulang source code:" >> $TMPLOG
 		echo "                     a. Jika dalam satu file secara keseluruhan merupakan baris program malware" >> $TMPLOG
 		echo "                        maka bisa langsung dilakukan penghapusan file tersebut." >> $TMPLOG
 		echo "                     b. Jika dalam satu file terdapat (infeksi) baris program malware" >> $TMPLOG
 		echo "                        maka cukup lakukan penghapusan baris program tersebut tanpa" >> $TMPLOG
 		echo "                        harus menghapus satu file atau ganti dengan file original dari situs resmi." >> $TMPLOG
-		echo "                  3. Kordinasikan dengan tim webdeveloper perihal permbersihan malware." >> $TMPLOG
-		echo "                  4. Pembersihan malware tersebut di luar support kami, apabila tidak" >> $TMPLOG
+		echo "                  3. Kordinasikan dengan tim webdeveloper perihal pembersihan malware." >> $TMPLOG
+		echo "                  4. Permbersihan malware tersebut di luar support kami, apabila tidak" >> $TMPLOG
 		echo "                     menggunakan layanan profesional web kami." >> $TMPLOG
 		echo "                  5. Informasi perihal layanan profesional web, mulai dari pembuatan," >> $TMPLOG
 		echo "                     pengembangan, pemeliharaan web. Silahkan bisa menghubungi ..." >> $TMPLOG
 		echo "Note            : Firewall AntiVirus akan melakukan 'lock file permission' secara otomatis" >> $TMPLOG
-		echo "                  apabila belum melakukan penanganan lebih dari 6 jam setelah email ini dikirimkan" >> $TMPLOG
-		echo "                  guna menghindari infeksi malware/virus yang lebih meluas." >> $TMPLOG
+		echo "                  guna menghindari infeksi malware/virus yang lebih meluas," >> $TMPLOG
+		echo "                  apabila belum melakukan permbersihan lebih dari 6 jam setelah email ini dikirimkan" >> $TMPLOG
 		echo "                  Silahkan rikues 'unlock file permission', kirimkan melalui email ke alamat" >> $TMPLOG
 		echo "                  $EMAIL apabila ingin langsung melakukan pembersihan malware." >> $TMPLOG
         if [[ $MODE -eq 1 ]];then # ls
@@ -284,21 +284,13 @@ function mode_action {
 function usage {
         echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]"
         echo ""
-<<<<<<< HEAD
         echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to email address"
-=======
-        echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to an email address"
->>>>>>> 744c14a8257d9ce35661020706f006c9bd3462b0
         echo "-m, --mode=[ACTION MODE]           default value is 1"
         echo "     1 = ls                        only for print malicious file list"
         echo "     2 = chmod 000                 change permission malicious files to 000"
         echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable"
         echo "-p, --path=[PATH]                  scan directory, default value is /home*/*"
-<<<<<<< HEAD
 		echo "-h, --help                         show usage information"
-=======
-	echo "-h, --help                         show usage information"
->>>>>>> 744c14a8257d9ce35661020706f006c9bd3462b0
         echo ""
         echo "Example:"
         echo "$0 --email=youremail@address.com --mode=1 --path=/home/"
@@ -322,10 +314,10 @@ case $i in
         SCANDIR="${i#*=}"
         shift
         ;;
-    -h|--help)
-	usage
-	exit
-	;;
+	-h|--help)
+		usage
+		exit
+		;;
     *)
         usage
         exit
@@ -527,7 +519,4 @@ if [[ -f $LOGFILE ]];then
 		done 
 	fi
 fi
-<<<<<<< HEAD
 ##### </log rotate>
-=======
->>>>>>> 744c14a8257d9ce35661020706f006c9bd3462b0
