@@ -284,13 +284,21 @@ function mode_action {
 function usage {
         echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]"
         echo ""
+<<<<<<< HEAD
         echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to email address"
+=======
+        echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to an email address"
+>>>>>>> 744c14a8257d9ce35661020706f006c9bd3462b0
         echo "-m, --mode=[ACTION MODE]           default value is 1"
         echo "     1 = ls                        only for print malicious file list"
         echo "     2 = chmod 000                 change permission malicious files to 000"
         echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable"
         echo "-p, --path=[PATH]                  scan directory, default value is /home*/*"
+<<<<<<< HEAD
 		echo "-h, --help                         show usage information"
+=======
+	echo "-h, --help                         show usage information"
+>>>>>>> 744c14a8257d9ce35661020706f006c9bd3462b0
         echo ""
         echo "Example:"
         echo "$0 --email=youremail@address.com --mode=1 --path=/home/"
@@ -314,10 +322,10 @@ case $i in
         SCANDIR="${i#*=}"
         shift
         ;;
-	-h|--help)
-		usage
-		exit
-		;;
+    -h|--help)
+	usage
+	exit
+	;;
     *)
         usage
         exit
@@ -519,4 +527,7 @@ if [[ -f $LOGFILE ]];then
 		done 
 	fi
 fi
+<<<<<<< HEAD
 ##### </log rotate>
+=======
+>>>>>>> 744c14a8257d9ce35661020706f006c9bd3462b0
