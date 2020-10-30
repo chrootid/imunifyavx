@@ -182,7 +182,7 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
 		echo "                  4. Permbersihan malware tersebut di luar support kami, apabila tidak" >> $TMPLOG
 		echo "                     menggunakan layanan profesional web kami." >> $TMPLOG
 		echo "                  5. Informasi perihal layanan profesional web, mulai dari pembuatan," >> $TMPLOG
-		echo "                     pengembangan, pemeliharaan web. Silahkan bisa menghubungi ..." >> $TMPLOG
+		echo "                     pengembangan, pemeliharaan web. Silahkan bisa menghubungi adit[at]chrootid.com" >> $TMPLOG
 		echo "Note            : Firewall AntiVirus akan melakukan 'lock file permission' secara otomatis" >> $TMPLOG
 		echo "                  apabila belum melakukan permbersihan lebih dari 6 jam setelah email ini dikirimkan" >> $TMPLOG
 		echo "                  guna menghindari infeksi malware/virus yang lebih meluas," >> $TMPLOG
