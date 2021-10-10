@@ -26,7 +26,7 @@ X merupakan penamaan variable cross platform pada script yang ditujukan untuk ko
 # Download
 Proses download script bisa langsung melalui terminal/console dengan menggunakan command wget sebagai berikut.
 ```
-# wgit clone https://github.com/chrootid/imunifyavx
+# git clone https://github.com/chrootid/imunifyavx
 # cd imunifyavx   
 # bash imunifyavx.sh
 ```
