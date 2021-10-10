@@ -46,39 +46,39 @@ fi
 function status_check {
 i=1
 bar="/-\|"
-printf "ImunifyAV on-demand scan:${yellow} $STATUS ${reset}[ "
+printf "ImunifyAV on-demand scan:${yellow} $STATUS ${reset} "
 while [[ $STATUS == "running" ]];do
     printf "\b${bar:i++%${#bar}:1}"
     sleep 0.001s
-    STATUS=$(imunify-antivirus malware on-demand status|grep status|awk '{print $2}')
+    STATUS=$(imunify-antivirus malware on-demand status|awk '/status/ {print $2}')
 done
-printf "] ${red}$STATUS ${reset}\n"
+printf " ${red}$STATUS ${reset}\n"
 
 # loading scan result
 i=1
 bar="/-\|"
-DURATION=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $3}')
-printf "ImunifyAV on-demand scan:${yellow} loading ${reset}[ "
+DURATION=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $3}')
+printf "ImunifyAV on-demand scan:${yellow} loading ${reset} "
 while [[ $DURATION == "None" ]];do
     printf "\b${bar:i++%${#bar}:1}"
     sleep 0.001s
-    DURATION=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $3}')
+    DURATION=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $3}')
 done
-printf "] ${green}loaded ${reset}"
+printf " ${green}loaded ${reset}"
 printf "\nImunifyAV on-demand scan:${green} completed ${reset}\n"
 }
 ##### </status check>
 
 ##### <load scan result>
 function load_scan_result {
-	COMPLETED=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $1}')
-	ERROR=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $4}')
-	PATHSCAN=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $5}')
-	SCAN_TYPE=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $7}')
-	STARTED=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $9}')
-	TOTAL=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $10}')
-	TOTAL_FILES=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $11}')
-    TOTAL_MALICIOUS=$(imunify-antivirus malware on-demand list|grep $SCANID|awk '{print $12}')
+	COMPLETED=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $1}')
+	ERROR=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $4}')
+	PATHSCAN=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $5}')
+	SCAN_TYPE=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $7}')
+	STARTED=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $9}')
+	TOTAL=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $10}')
+	TOTAL_FILES=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $11}')
+    TOTAL_MALICIOUS=$(imunify-antivirus malware on-demand list|awk '/$SCANID/ {print $12}')
 }
 ##### </load scan result>
 
@@ -161,7 +161,7 @@ function standalone_mode_process {
 function cpanel_mode_process {
 print_scan_result
 LIMIT=$TOTAL_MALICIOUS
-imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read USERS;do
+imunify-antivirus malware malicious list|awk '/$SCANID/ {print $13}'|egrep -v "USERNAME"|sort|uniq|while read USERS;do
         MAINDOMAIN=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d"=" -f7)
         OWNER=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d'=' -f3)
         CONTACT=$(grep CONTACTEMAIL /var/cpanel/users/$USERS|cut -d"=" -f2|head -n1)
@@ -190,19 +190,19 @@ imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev
 		echo "                  $EMAIL apabila ingin langsung melakukan pembersihan malware." >> $TMPLOG
         if [[ $MODE -eq 1 ]];then # ls
             echo -e "Location: \t\t\t Type:" > $TMPLOG2
-            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4"\t\t\t"$12}' |sort >> $TMPLOG2
         elif [[ $MODE -eq 2 ]];then # chmod ls
             echo -e "Location: \t\t\t Type:" > $TMPLOG2
-            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
-            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4}'|sort|uniq|while read LIST;do
             if [ -f $LIST ];then
                 chmod 000 $LIST
             fi
             done
         elif [[ $MODE -eq 3 ]];then # chmod chattr ls
             echo -e "Location: \t\t\t Type:" > $TMPLOG2
-            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}'|sort >> $TMPLOG2
-            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4"\t\t\t"$12}'|sort >> $TMPLOG2
+            imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4}'|sort|uniq|while read LIST;do
             if [ -f $LIST ];then
                 chmod 000 $LIST
                 chattr +i $LIST
@@ -246,24 +246,24 @@ function print_scan_result {
 ##### <MODE action>
 function mode_action {
 	LIMIT=$TOTAL_MALICIOUS
-	imunify-antivirus malware malicious list|grep $SCANID|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read USERS;do
+	imunify-antivirus malware malicious list|awk '/$SCANID/ {print $13}'|egrep -v "USERNAME"|sort|uniq|while read USERS;do
 	echo "Username        : $USERS" > $TMPLOG
 	message_tips
 	if [[ $MODE -eq 1 ]];then # ls
 		echo -e "Location: \t\t\t Type:" > $TMPLOG2
-		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4"\t\t\t"$12}' |sort >> $TMPLOG2
 	elif [[ $MODE -eq 2 ]];then # chmod ls
 		echo -e "Location: \t\t\t Type:" > $TMPLOG2
-		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}' |sort >> $TMPLOG2
-		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4"\t\t\t"$12}' |sort >> $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4}'|sort|uniq|while read LIST;do
 			if [ -f $LIST ];then
 				chmod 000 $LIST
 			fi
 		done
 	elif [[ $MODE -eq 3 ]];then # chmod chattr ls
 		echo -e "Location: \t\t\t Type:" > $TMPLOG2
-		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4"\t\t\t"$12}'|sort >> $TMPLOG2
-		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|grep True|awk '{print $4}'|sort|uniq|while read LIST;do
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4"\t\t\t"$12}'|sort >> $TMPLOG2
+		imunify-antivirus malware malicious list --user $USERS --limit $LIMIT|grep $SCANID|awk '/True/ {print $4}'|sort|uniq|while read LIST;do
 			if [ -f $LIST ];then
 				chmod 000 $LIST
 				chattr +i $LIST
@@ -487,8 +487,8 @@ if [[ $STATUS == "stopped" ]];then
 	printf "Starting ImunifyAV on-demand scan: ${green}"
     imunify-antivirus malware on-demand start --path=$SCANDIR
 	printf "${reset}"
-    SCANID=$(imunify-antivirus malware on-demand status|grep scanid|awk '{print $2}')
-    STATUS=$(imunify-antivirus malware on-demand status|grep status|awk '{print $2}')
+    SCANID=$(imunify-antivirus malware on-demand status|awk '/scanid/ {print $2}')
+    STATUS=$(imunify-antivirus malware on-demand status|awk '/status/ {print $2}')
     status_check
 	load_scan_result
     if [[ $TOTAL_MALICIOUS -gt "0" ]];then
