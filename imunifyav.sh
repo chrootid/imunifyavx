@@ -299,6 +299,7 @@ echo "$0 -e=your@email.com -m=1 -p=/home/"
 ##### </usage>
 
 ##### main
+clear
 for i in "$@"
 do
 case $i in
