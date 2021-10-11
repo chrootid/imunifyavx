@@ -28,7 +28,7 @@ Proses download script bisa langsung melalui terminal/console dengan menggunakan
 ```
 # git clone https://github.com/chrootid/imunifyavx
 # cd imunifyavx   
-# bash imunifyavx.sh
+# bash imunifyav.sh
 ```
 
 # Usage
