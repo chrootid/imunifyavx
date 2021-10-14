@@ -30,13 +30,13 @@ function scan_duration {
 if [[ "$DURATION" -lt 60 ]];then
     DURATION=$(echo "$DURATION" second[s])
 elif [[ "$DURATION" -ge 60 ]] && [[ "$DURATION" -lt 3600 ]];then
-    DURATION=$(( "$DURATION" / 60 ))
+    DURATION=$(( "DURATION" / 60 ))
     DURATION=$(echo "$DURATION" minute[s])
 elif [[ "$DURATION" -ge 3600 ]] && [[ "$DURATION" -lt 86400 ]];then
-    DURATION=$(( "$DURATION" / 3600 ))
+    DURATION=$(( "DURATION" / 3600 ))
     DURATION=$(echo "$DURATION" hour[s])
 elif [[ "$DURATION" -ge 86400 ]] && [[ "$DURATION" -lt 604800 ]];then
-    DURATION=$(( "$DURATION" / 86400 ))
+    DURATION=$(( "DURATION" / 86400 ))
     DURATION=$(echo "$DURATION" day[s])
 fi
 }
