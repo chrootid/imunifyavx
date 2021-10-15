@@ -10,16 +10,16 @@ ImunifyAVX is a malware scanner tools powered by ImunifyAV
 - CloudLinux 6.x / 7.x 64 bit
 
 # Requirements
-1. root
+1. root priviledge
 2. mailx
 3. imunifyav
 
 # Features
-1. Mailware scan report for server admin or hosting user
+1. Mailware scan report and notification for server admin or hosting user
 2. Provide action mode option for malware scan result
 - ls for suspicuous list
-- chmod 000 + ls change permission to 000 for every suspicious list
-- Chmod + chattr + ls: change permission to 000 and lock it for every suspicious list.
+- chmod 000 + ls change permission to 000 for suspicious list
+- Chmod + chattr + ls change permission to 000 and mute it for suspicious list.
 
 # Download
 ```
@@ -37,7 +37,8 @@ USAGE: imunifyavx.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]
 -m, --mode=[ACTION MODE]           default value is 1
      1 = ls                        only for print malicious file list
      2 = chmod 000                 change permission malicious files to 000
-     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable
+     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change its attribute to immutable
+-r, --report                       report malware scan result to hosting user contact mail
 -p, --path=[PATH]                  scan directory, default value is /home*/*
 -h, --help                         show usage information
 
@@ -48,7 +49,7 @@ bash imunifyavx.sh -e=your@email.com -m=1 -p=/home/
 
 # Command Usage Output
 ```
-# sudo bash imunifyavx.sh --email=sysadmin@server.com --mode=2
+# sudo bash imunifyavx.sh --email=sysadmin@server.com --mode=2 --path=/home/user01/public_html/
 Checking for Operating System  : CentOS Linux 7 (Core)
 Checking for mailx             : OK
 Checking for user              : OK
@@ -63,8 +64,6 @@ On-demand scan status          : running - stopped
 On-demand scan status          : completed
 On-demand scan result          : Found 841 suspicious file(s)
 On-demand scan report for user : user01 to user1@webdomain1.com was disabled
-On-demand scan report for user : user02 to user2@webdomain2.com was disabled
-On-demand scan report for user : user03 to user3@webdomain3.com was disabled
 On-demand scan report          : sysadmin@server.com
 ImunifyAVX log file            : /var/log/imunifyavx-2021-10-15.txt
 ```
@@ -79,7 +78,7 @@ Started         : Fri Oct 15 20:56:32 WIB 2021
 Completed       : Fri Oct 15 20:57:27 WIB 2021
 Duration        : 55 second[s]
 Error           : None
-Path            : /home*/*
+Path            : /home/user01/public_html/
 Scan Type       : on-demand
 Scan ID         : cd7c575bef2e448bbae5e4b4ffc52b53
 Total Scanned   : 6096 file[s]
