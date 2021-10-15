@@ -30,18 +30,20 @@ ImunifyAVX is a malware scanner tools powered by ImunifyAV
 
 # Usage
 ```
-# imunifyav --help
-USAGE: imunifyav --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]
--e, --email=[EMAIL ADDRESS]        send malware scan report to an email address
+# bash imunifyavx.sh --help
+USAGE: imunifyavx.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]
+
+-e, --email=[EMAIL ADDRESS]        send malware scan report to email address
 -m, --mode=[ACTION MODE]           default value is 1
      1 = ls                        only for print malicious file list
      2 = chmod 000                 change permission malicious files to 000
      3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable
 -p, --path=[PATH]                  scan directory, default value is /home*/*
 -h, --help                         show usage information
+
 Example:
-imunifyav --email=youremail@address.com --mode=1 --path=/home/
-imunifyav -e=your@email.com -m=1 -p=/home/
+bash imunifyavx.sh --email=youremail@address.com --mode=1 --path=/home/
+bash imunifyavx.sh -e=your@email.com -m=1 -p=/home/
 ```
 
 # Sample Output
