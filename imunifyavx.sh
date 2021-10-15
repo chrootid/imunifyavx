@@ -200,7 +200,7 @@ echo -e "ImunifyAVX log file            : $LOGFILE "
 function print_scan_result {
 	echo "Hostname        : $HOSTNAME" > "$LOGFILE"
 	{
-	        echo "OS              : $OPERATINGSYSTEM"
+	        echo "OS              : $(awk -F '=' '/PRETTY_NAME/ {print $2}' /etc/os-release |sed 's/"//g')"
 	        echo "Hosting Panel   : $HOSTINGPANEL"
 	        echo "Started         : $(date --date=@"$STARTED")"
 	        echo "Completed       : $(date --date=@"$COMPLETED")"
@@ -254,22 +254,32 @@ function mode_action {
 	done
 }
 
+# banner
+function displaybanner {
+	echo "#########################################################"
+	echo "##   ImunifyAVX - Malware Scanner Tool"
+	echo "##   2021 - Adit Thaufan <adit@chrootid.com>"
+	echo "##   https://github.com/chrootid/imunifyavx"
+	echo "#########################################################"
+	echo "..."
+}
+
 # usage
 function usage {
 echo "USAGE: $0 --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]"
 echo ""
-echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to email address"
-echo "-m, --mode=[ACTION MODE]           default value is 1"
-echo "     1 = ls                        only for print malicious file list"
-echo "     2 = chmod 000                 change permission malicious files to 000"
-echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change its attribute to immutable"
-echo "-r, --report                       report malware scan result to hosting user contact mail"
+echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to an email address"
+echo "-m, --mode=[ACTION MODE]           default value is 1 (list only)"
+echo "     1 = ls                        only for print suspicious file list"
+echo "     2 = chmod 000                 change permission suspicious file(s) to 000"
+echo "     3 = chmod 000 && chattr +i    change permission suspicious file(s) to 000 and attribute to immutable"
+echo "-r, --report                       send malware scan report to user contact mail"
 echo "-p, --path=[PATH]                  scan directory, default value is /home*/*"
 echo "-h, --help                         show usage information"
 echo ""
 echo "Example:"
-echo "bash $0 --email=youremail@address.com --mode=1 --path=/home/"
-echo "bash $0 -e=your@email.com -m=1 -p=/home/"
+echo "bash $0 --report --email=youremail@address.com --mode=2 --path=/home/"
+echo "bash $0 -r -e=your@email.com -m=2 -p=/home/"
 }
 
 ##### main ####
@@ -320,6 +330,7 @@ elif [[ ! -d "$SCANDIR" ]];then
 fi
 
 clear
+displaybanner
 
 # os validation check
 echo -n "Checking for Operating System  :"
