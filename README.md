@@ -4,7 +4,6 @@ ImunifyAVX is a malware scanner tools powered by ImunifyAV with some additional 
 # Supported OS
 1. Stand Alone
 - Ubuntu 18.04 LTS 64 bit
-- Debian 8 / 9 / 10 (untested)
 2. cPanel/WHM
 - CentOS 6.x / 7.x 64 bit
 - CloudLinux 6.x / 7.x 64 bit
