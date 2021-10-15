@@ -46,7 +46,7 @@ bash imunifyavx.sh --email=youremail@address.com --mode=1 --path=/home/
 bash imunifyavx.sh -e=your@email.com -m=1 -p=/home/
 ```
 
-# Sample Output
+# Command Usage Output
 ```
 # sudo bash imunifyavx.sh --email=sysadmin@server.com --mode=2
 Checking for Operating System  : CentOS Linux 7 (Core)
@@ -67,7 +67,10 @@ On-demand scan report for user : user02 to user2@webdomain2.com was disabled
 On-demand scan report for user : user03 to user3@webdomain3.com was disabled
 On-demand scan report          : sysadmin@server.com
 ImunifyAVX log file            : /var/log/imunifyavx-2021-10-15.txt
+```
 
+# Sample Output
+```
 # sudo more /var/log/imunifyavx-2021-10-15.txt
 Hostname        : server.hostdomain.com
 OS              : CentOS
