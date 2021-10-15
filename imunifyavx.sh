@@ -15,7 +15,7 @@ LOGROTATE=5
 # cpanel user contact email notification
 # enabled
 # disabled
-SENDTO=disabled
+REPORTTO=disabled
  
 # colours
 red='\033[1;31m'
@@ -89,11 +89,11 @@ function malware_report_to_mailadmin {
 # mailreport to mail user
 function malware_report_to_mailuser {
     # Send to contact email?
-    if [[ "$SENDTO" == enabled ]];then
-        mail -s "MALWARE SCAN REPORT: $MAINDOMAIN $DATE $CONTACT" < "$TMPLOG"
+    if [[ "$REPORTTO" == enabled ]];then
+        mail -s "MALWARE SCAN REPORT: '$MAINDOMAIN' '$DATE'" "$CONTACT" < "$TMPLOG"
 		echo -e "On-demand scan report for user : $USERS to $CONTACT was sent"
     else
-        echo -e "On-demand scan report for user : $USERS to $CONTACT was $SENDTO"
+        echo -e "On-demand scan report for user : $USERS to $CONTACT was $REPORTTO"
     fi
 }
 
@@ -262,16 +262,16 @@ echo "-e, --email=[EMAIL ADDRESS]        send malware scan report to email addre
 echo "-m, --mode=[ACTION MODE]           default value is 1"
 echo "     1 = ls                        only for print malicious file list"
 echo "     2 = chmod 000                 change permission malicious files to 000"
-echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change the attribute to immutable"
+echo "     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change its attribute to immutable"
+echo "-r, --report                       report malware scan result to hosting user contact mail"
 echo "-p, --path=[PATH]                  scan directory, default value is /home*/*"
 echo "-h, --help                         show usage information"
 echo ""
 echo "Example:"
-echo "$0 --email=youremail@address.com --mode=1 --path=/home/"
-echo "$0 -e=your@email.com -m=1 -p=/home/"
+echo "bash $0 --email=youremail@address.com --mode=1 --path=/home/"
+echo "bash $0 -e=your@email.com -m=1 -p=/home/"
 }
 
-clear
 ##### main ####
 for i in "$@"
 do
@@ -288,6 +288,10 @@ case "$i" in
         SCANDIR="${i#*=}"
         shift
         ;;
+	-r|--report)
+		REPORTTO=enabled
+		shift
+	;;
 	-h|--help)
 		usage
 		exit
@@ -314,6 +318,8 @@ elif [[ ! -d "$SCANDIR" ]];then
 	usage
 	exit	
 fi
+
+clear
 
 # os validation check
 echo -n "Checking for Operating System  :"
