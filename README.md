@@ -16,9 +16,9 @@ ImunifyAVX is a malware scanner tools powered by ImunifyAV with some additional 
 # Features
 1. Mailware scan report and notification for server admin or hosting user
 2. Provide action mode option for malware scan result
-- ls for suspicuous list
-- chmod 000 + ls change permission to 000 for suspicious list
-- Chmod + chattr + ls change permission to 000 and mute it for suspicious list.
+- ls; for suspicuous list
+- chmod 000; ls; change permission to 000 for suspicious list
+- chmod 000; chattr +i; ls; change permission to 000 and mute it for suspicious list.
 
 # Download
 ```
@@ -32,18 +32,18 @@ ImunifyAVX is a malware scanner tools powered by ImunifyAV with some additional 
 # bash imunifyavx.sh --help
 USAGE: imunifyavx.sh --email=[EMAIL ADDRESS] --mode=[ACTION MODE] --path=[PATH]
 
--e, --email=[EMAIL ADDRESS]        send malware scan report to email address
--m, --mode=[ACTION MODE]           default value is 1
+-e, --email=[EMAIL ADDRESS]        send malware scan report to an email address
+-m, --mode=[ACTION MODE]           default value is 1 (list only)
      1 = ls                        only for print malicious file list
-     2 = chmod 000                 change permission malicious files to 000
-     3 = chmod 000 && chattr +i    change permission malicious files to 000 and change its attribute to immutable
--r, --report                       report malware scan result to hosting user contact mail
+     2 = chmod 000                 change permission malicious file(s) to 000
+     3 = chmod 000 && chattr +i    change permission malicious file(s) to 000 and attribute to immutable
+-r, --report                       send malware scan report to user contact mail
 -p, --path=[PATH]                  scan directory, default value is /home*/*
 -h, --help                         show usage information
 
 Example:
-bash imunifyavx.sh --email=youremail@address.com --mode=1 --path=/home/
-bash imunifyavx.sh -e=your@email.com -m=1 -p=/home/
+bash imunifyavx.sh --report --email=youremail@address.com --mode=2 --path=/home/
+bash imunifyavx.sh -r -e=your@email.com -m=2 -p=/home/
 ```
 
 # Command Usage Output
@@ -71,7 +71,7 @@ ImunifyAVX log file            : /var/log/imunifyavx-2021-10-15.txt
 ```
 # sudo more /var/log/imunifyavx-2021-10-15.txt
 Hostname        : server.hostdomain.com
-OS              : CentOS
+OS              : CentOS Linux 7 (Core)
 Hosting Panel   : cPanel/WHM 11.98.0.8
 Started         : Fri Oct 15 20:56:32 WIB 2021
 Completed       : Fri Oct 15 20:57:27 WIB 2021
