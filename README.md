@@ -46,7 +46,7 @@ bash imunifyavx.sh --report --email=youremail@address.com --mode=2 --path=/home/
 bash imunifyavx.sh -r -e=your@email.com -m=2 -p=/home/
 ```
 
-# Command Usage Output
+# Command Output
 ```
 # sudo bash imunifyavx.sh --email=sysadmin@server.com --mode=2 --path=/home/user01/public_html/
 Checking for Operating System  : CentOS Linux 7 (Core)
