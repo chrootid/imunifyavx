@@ -30,13 +30,13 @@ function scan_duration {
 if [[ "$DURATION" -lt 60 ]];then
     DURATION=$(echo "$DURATION" second[s])
 elif [[ "$DURATION" -ge 60 ]] && [[ "$DURATION" -lt 3600 ]];then
-    DURATION=$(( "DURATION" / 60 ))
+    DURATION=$(( DURATION / 60 ))
     DURATION=$(echo "$DURATION" minute[s])
 elif [[ "$DURATION" -ge 3600 ]] && [[ "$DURATION" -lt 86400 ]];then
-    DURATION=$(( "DURATION" / 3600 ))
+    DURATION=$(( DURATION / 3600 ))
     DURATION=$(echo "$DURATION" hour[s])
 elif [[ "$DURATION" -ge 86400 ]] && [[ "$DURATION" -lt 604800 ]];then
-    DURATION=$(( "DURATION" / 86400 ))
+    DURATION=$(( DURATION / 86400 ))
     DURATION=$(echo "$DURATION" day[s])
 fi
 }
@@ -45,13 +45,13 @@ fi
 function status_check {
 i=1
 bar="/-\|"
-printf "ImunifyAV on-demand scan:${yellow} %s ${reset} " "$STATUS"
+printf "On-demand scan status          : %s  " "$STATUS"
 while [[ "$STATUS" == "running" ]];do
     printf "\b${bar:i++%${#bar}:1}"
     sleep 0.001s
     STATUS=$(imunify-antivirus malware on-demand status|awk '/status/ {print $2}')
 done
-echo -e " ${red}$STATUS ${reset}"
+echo -e " $STATUS "
 
 # loading scan result
 DURATION=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $3}')
@@ -60,7 +60,7 @@ while [[ "$DURATION" == "None" ]];do
     sleep 0.001s
     DURATION=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $3}')
 done
-echo -e "ImunifyAV on-demand scan:${green} completed ${reset}"
+echo -e "On-demand scan status          : completed "
 }
 
 # load scan result
@@ -78,10 +78,11 @@ function load_scan_result {
 # mailreport to mailadmin
 function malware_report_to_mailadmin {
 	if [[ -n "$EMAIL" ]];then
+	    echo -e "On-demand scan report          : $EMAIL"
 		mail -s "MALWARE SCAN REPORT ['$HOSTNAME'] '$DATE'" "$EMAIL" < "$LOGFILE"
 	elif [[ -z "$EMAIL" ]];then
-		echo -e "Please define your ${red}email address${reset} to recieve malware scan report"
-		echo -e "$0 --email=${red}youremail@address.com${reset}"
+		echo -e "On-demand scan report          : Please define your email address if you want to recieve malware scan report"
+		echo -e "                                 Try: /bin/bash $0 --email=youremail@address.com"
 	fi
 }
 
@@ -89,10 +90,10 @@ function malware_report_to_mailadmin {
 function malware_report_to_mailuser {
     # Send to contact email?
     if [[ "$SENDTO" == enabled ]];then
-    echo -e "Sending to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${green} $SENDTO ${reset}"
         mail -s "MALWARE SCAN REPORT: $MAINDOMAIN $DATE $CONTACT" < "$TMPLOG"
+		echo -e "On-demand scan report for user : $USERS to $CONTACT was sent"
     else
-        echo -e "Send to${blue} $CONTACT${reset} for user${blue} $USERS${reset}:${red} $SENDTO ${reset}"
+        echo -e "On-demand scan report for user : $USERS to $CONTACT was $SENDTO"
     fi
 }
 
@@ -142,7 +143,7 @@ function standalone_mode_process {
 	print_scan_result
 	mode_action
 	malware_report_to_mailadmin
-	echo -e "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}"
+	echo -e "ImunifyAVX log file            : $LOGFILE "
 }
 
 # cpanel mode process
@@ -152,7 +153,8 @@ LIMIT="$TOTAL_MALICIOUS"
 imunify-antivirus malware malicious list|grep "$SCANID"|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read -r USERS;do
         MAINDOMAIN=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d"=" -f7)
         OWNER=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d'=' -f3)
-        CONTACT=$(grep CONTACTEMAIL /var/cpanel/users/"$USERS"|cut -d"=" -f2|head -n1)
+        #CONTACT=$(grep CONTACTEMAIL /var/cpanel/users/"$USERS"|cut -d"=" -f2|head -n1)
+		CONTACT=$(awk -F '=' '/CONTACTEMAIL=/ {print $2}' /var/cpanel/users/"$USERS")
         TOTALMAL=$(imunify-antivirus malware malicious list --limit "$LIMIT"|grep "$SCANID" |grep -c "$USERS")
         echo "Username        : $USERS" > "$TMPLOG"
         {
@@ -160,23 +162,6 @@ imunify-antivirus malware malicious list|grep "$SCANID"|awk '{print $13}'|grep -
                 echo "Main Domain     : $MAINDOMAIN"
                 echo "Contact Email   : $CONTACT"
                 echo "Total Malicious : Found $TOTALMAL malicious file(s)"
-                echo "How to Clean Up : 1. Lakukan backup data terlebih dahulu sebelum pembersihan malware"
-		echo "                  2. Tinjau ulang source code:"
-		echo "                     a. Jika dalam satu file secara keseluruhan merupakan baris program malware"
-		echo "                        maka bisa langsung dilakukan penghapusan file tersebut."
-		echo "                     b. Jika dalam satu file terdapat (infeksi) baris program malware"
-		echo "                        maka cukup lakukan penghapusan baris program tersebut tanpa"
-		echo "                        harus menghapus satu file atau ganti dengan file original dari situs resmi."
-		echo "                  3. Kordinasikan dengan tim webdeveloper perihal pembersihan malware."
-		echo "                  4. Permbersihan malware tersebut di luar support kami, apabila tidak."
-		echo "                     menggunakan layanan profesional web kami."
-		echo "                  5. Informasi perihal layanan profesional web, mulai dari pembuatan,"
-		echo "                     pengembangan, pemeliharaan web. Silahkan bisa menghubungi adit[at]chrootid.com"
-		echo "Note            : Firewall AntiVirus akan melakukan 'lock file permission' secara otomatis"
-		echo "                  apabila belum melakukan permbersihan lebih dari 6 jam setelah email ini dikirimkan"
-		echo "                  guna menghindari infeksi malware/virus yang lebih meluas,"
-		echo "                  Silahkan rikues 'unlock file permission', kirimkan melalui email ke alamat $EMAIL"
-		echo "                  apabila ingin langsung melakukan pembersihan malware."
         } >> "$TMPLOG"
         if [[ "$MODE" -eq 1 ]];then # ls
             echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
@@ -208,7 +193,7 @@ imunify-antivirus malware malicious list|grep "$SCANID"|awk '{print $13}'|grep -
 		malware_report_to_mailuser
 done
 malware_report_to_mailadmin
-echo -e "Malware scan result logfile:${light_cyan} $LOGFILE ${reset}"
+echo -e "ImunifyAVX log file            : $LOGFILE "
 }
 
 # print scan result
@@ -241,19 +226,19 @@ function mode_action {
 	message_tips
 	if [[ "$MODE" -eq 1 ]];then # ls
 		echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|grep True|awk '{print $4"\t\t\t"$12}' |sort >> "$TMPLOG2"
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|awk '/True/ {print $4"\t\t\t"$12}' |sort >> "$TMPLOG2"
 	elif [[ "$MODE" -eq 2 ]];then # chmod ls
 		echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|grep True|awk '{print $4"\t\t\t"$12}' |sort >> "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|grep True|awk '{print $4}'|sort|uniq|while read -r LIST;do
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|awk '/True/ {print $4"\t\t\t"$12}' |sort >> "$TMPLOG2"
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|awk '/True/ {print $4}'|sort|uniq|while read -r LIST;do
 			if [ -f "$LIST" ];then
 				chmod 000 "$LIST"
 			fi
 		done
 	elif [[ "$MODE" -eq 3 ]];then # chmod chattr ls
 		echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|grep True|awk '{print $4"\t\t\t"$12}'|sort >> "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|grep True|awk '{print $4}'|sort|uniq|while read -r LIST;do
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|awk '/True/ {print $4"\t\t\t"$12}'|sort >> "$TMPLOG2"
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT"|grep "$SCANID"|awk '/True/ {print $4}'|sort|uniq|while read -r LIST;do
 			if [ -f "$LIST" ];then
 				chmod 000 "$LIST"
 				chattr +i "$LIST"
@@ -325,17 +310,17 @@ fi
 if [[ -z "$SCANDIR" ]];then
 	SCANDIR='/home*/*'
 elif [[ ! -d "$SCANDIR" ]];then
-	echo -e "${red}'$SCANDIR'${reset}: not found"
+	echo -e "'$SCANDIR': not found"
 	usage
 	exit	
 fi
 
 # os validation check
-echo -n "Checking Operating System:"
+echo -n "Checking for Operating System  :"
 if [[ -f /usr/bin/hostnamectl ]];then
 	OPERATINGSYSTEM=$(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2|awk '{print $1}')
 	if [[ "$OPERATINGSYSTEM" == 'CloudLinux' ]] || [[ "$OPERATINGSYSTEM" == 'CentOS' ]] || [[ "$OPERATINGSYSTEM" == 'Red' ]];then
-		echo -e "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}"
+		echo -e "$(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) "
 		PACKAGEMANAGER=/bin/rpm
 	elif [[ "$OPERATINGSYSTEM" == 'Ubuntu' ]] || [[ "$OPERATINGSYSTEM" == 'Debian' ]];then
 		PACKAGEMANAGER=/usr/bin/dpkg
@@ -346,60 +331,60 @@ if [[ -f /usr/bin/hostnamectl ]];then
 			echo "[paths]" > /etc/sysconfig/imunify360/integration.conf
 			echo "ui_path = /var/www/html" >> /etc/sysconfig/imunify360/integration.conf
 		fi
-		echo -e "${green} $(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) ${reset}"
+		echo -e "$(/usr/bin/hostnamectl|grep "Operating System"|cut -d: -f2) "
 		
 	fi
 elif [[ -f /etc/redhat-release ]];then
 	OPERATINGSYSTEM=$(awk '{print $1}' /etc/redhat-release)
 	if [[ "$OPERATINGSYSTEM" == 'CloudLinux' ]] || [[ "$OPERATINGSYSTEM" == 'CentOS' ]];then
-		echo -e "${green} $(awk '{print $1}' /etc/redhat-release) ${reset}"
+		echo -e "$(awk '{print $1}' /etc/redhat-release) "
 		PACKAGEMANAGER=/bin/rpm
 	fi
 else
-	echo -e "${red} '$OPERATINGSYSTEM' ${reset}"
-	echo -e "ImunifyAVX: ${red}FAILED${reset}"
+	echo -e " '$OPERATINGSYSTEM' "
+	echo -e "ImunifyAVX: FAILED"
 	echo "Unsupported yet"
 	exit
 fi
 
 # require mailx
-echo -n "Checking mailx: "
+echo -n "Checking for mailx             : "
 if [[ "$OPERATINGSYSTEM" == 'CloudLinux' ]] || [[ "$OPERATINGSYSTEM" == 'CentOS' ]] || [[ "$OPERATINGSYSTEM" == 'Red' ]];then
 RPMMAILX=$("$PACKAGEMANAGER" -qa|grep mailx|cut -d- -f1|head -n1)
 	if [[ "$RPMMAILX" != "mailx" ]];then
-		echo -e "${red}FAILED ${reset}"
-		echo -e "mail command not found:${yellow} installing mailx${reset}"
+		echo -e "FAILED "
+		echo -e "mail command not found: installing mailx"
 		yum install -y mailx
-		echo -e "Checking mailx: ${green}OK ${reset}"
+		echo -e "Checking mailx: OK "
 	else
-		echo -e "${green}OK ${reset}"
+		echo -e "OK "
 	fi
 elif [[ "$OPERATINGSYSTEM" == 'Ubuntu' ]] || [[ "$OPERATINGSYSTEM" == 'Debian' ]];then
 RPMMAILX=$("$PACKAGEMANAGER" -l|grep mailx)
 	if [[ -z "$RPMMAILX" ]];then
-		echo -e "${red}FAILED ${reset}"
-		echo -e "mail command not found:${yellow} installing mailx${reset}"
+		echo -e "FAILED "
+		echo -e "mail command not found: installing mailx"
 		apt install -y mailx
-		echo -e "Checking mailx: ${green}OK ${reset}"
+		echo -e "Checking mailx: OK "
 	else
-		echo -e "${green}OK ${reset}"
+		echo -e "OK "
 	fi
 fi
  
 # user check
-echo -n "Checking user: "
+echo -n "Checking for user              : "
 if [[ $(id -u) -ne 0 ]];then
-    echo -e "${red}FAILED ${reset}"
+    echo -e "FAILED "
     echo -e "Require root priviledge. Please try 'sudo su' or 'su -u root' and try again."
     exit
 else
-    echo -e "${green}OK ${reset}"
+    echo -e "OK "
 fi
 
 # imunifyav check
-echo -n "Checking imunifyav: "
+echo -n "Checking for imunifyav         : "
 if [[ ! -f /usr/bin/imunify-antivirus ]];then
-    echo -e "${red}FAILED ${reset}"
+    echo -e "FAILED "
     echo -e "ImunifyAV was not installed"
     echo -e "checking system requirement before imunifyav installation"
     FREESPACE=$(( $(df /home|awk 'NR==2 {print $4}') / 1000000 ))
@@ -409,27 +394,27 @@ if [[ ! -f /usr/bin/imunify-antivirus ]];then
         wget https://repo.imunify360.cloudlinux.com/defence360/imav-deploy.sh -O /root/imav-deploy.sh
         bash /root/imav-deploy.sh
         if [[ -f /usr/bin/imunify-antivirus ]];then
-            echo -e "checking imunifyav:${green} OK${reset}"
+            echo -e "checking for imunifyav: OK"
         else
-            echo -e "checking imunifyav:${red} FAILED${reset}"
+            echo -e "checking for imunifyav: FAILED"
             exit 
         fi
     else
-        echo -e "ImunifyAV installation:${red} FAILED${reset}"
+        echo -e "ImunifyAV installation: FAILED"
         echo -e "Minimum Hardware Requirements"
-        echo -e "RAM:${green} 512 MB${reset}"
-        echo -e "Storage:${green} 20 GB ${reset}available disk space"
+        echo -e "RAM: 512 MB"
+        echo -e "Storage: 20 GB available disk space"
 		echo ""
         echo -e "Your $HOSTNAME server hardware spec"
         if [[ "$MEMORY" -lt 512 ]];then
-            echo -e "RAM:${red} '$MEMORY' MB${reset}"
+            echo -e "RAM: '$MEMORY' MB"
         elif [[ "$MEMORY" -ge 512 ]];then
-            echo -e "RAM:${green} '$MEMORY' MB${reset}"
+            echo -e "RAM: '$MEMORY' MB"
         fi
         if [[ ${FREESPACE/.*} -lt 21 ]];then
-            echo -e "Storage:${red} '$FREESPACE' GB ${reset}available disk space"
+            echo -e "Storage: '$FREESPACE' GB available disk space"
         elif [[ ${FREESPACE/.*} -ge 21 ]];then
-            echo -e "Storage:${green} '$FREESPACE' GB ${reset}available disk space"
+            echo -e "Storage: '$FREESPACE' GB available disk space"
         fi
         exit
     fi
@@ -438,56 +423,51 @@ elif [[ -f /usr/bin/imunify-antivirus ]];then
 		SYSSTATUS=$(systemctl status imunify-antivirus|grep Active|cut -d: -f2|awk '{print $1}')
 		if [[ "$SYSSTATUS" == "inactive" ]];then
 			/bin/systemctl start imunify-antivirus
-			echo -e "${green}OK ${reset}"
+			echo -e "OK "
 		elif [[ "$SYSSTATUS" == "active" ]];then
-			echo -e "${green}OK ${reset}"
+			echo -e "OK "
 		fi
 	elif [[ -f /sbin/service ]];then
 		SYSSTATUS=$(/sbin/service imunify-antivirus status|cut -d. -f1|awk '{print $5}')
 		if [[ "$SYSSTATUS" == "running" ]];then
-			echo -e "${green}OK ${reset}"
+			echo -e "OK "
 		elif [[ "$SYSSTATUS" != "running" ]];then
 			/sbin/service imunify-antivirus start
-			echo -e "${green}OK ${reset}"
+			echo -e "OK "
 		fi
 	fi
 fi
 
 # signature update process
-echo -e "ImunifyAV signatures: ${yellow}updating ${reset}"
-echo -e " geo:${green} $(imunify-antivirus update geo) ${reset}"
-echo -e " rules:${green} $(imunify-antivirus update modsec-rules) ${reset}"
-echo -e " sigs:${green} $(imunify-antivirus update sigs) ${reset}"
-echo -e " static whitelist:${green} $(imunify-antivirus update static-whitelist) ${reset}"
-echo -e " eula:${green} $(imunify-antivirus update eula) ${reset}"
-echo -e " ip-record:${green} $(imunify-antivirus update ip-record) ${reset}"
-echo -e " sigs-php:${green} $(imunify-antivirus update sigs-php) ${reset}"
-echo -e " ossecp:${green} $(imunify-antivirus update ossec) ${reset}"
-echo -e "ImunifyAV signatures: ${green}update completed ${reset}"
+echo -e "Checking for signatures update : Updating "
+echo -e "   sigs: $(imunify-antivirus update sigs) "
+echo -e "   eula: $(imunify-antivirus update eula) "
+echo -e "Checking for signatures update : Done "
 
 # scan process
 STATUS=$(imunify-antivirus malware on-demand status|grep status|awk '{print $2}')
 if [[ "$STATUS" == "stopped" ]];then
-	echo -e "ImunifyAV on-demand scan:${red} $STATUS ${reset}"
-	printf "Starting ImunifyAV on-demand scan: ${green}"
+	echo -e "On-demand scan status          : $STATUS "
+	printf "Starting on-demand scan        : "
     imunify-antivirus malware on-demand start --path="$SCANDIR"
-	printf "${reset}"
+	printf ""
     SCANID=$(imunify-antivirus malware on-demand status|awk '/scanid/ {print $2}')
     STATUS=$(imunify-antivirus malware on-demand status|awk '/status/ {print $2}')
     status_check
 	load_scan_result
     if [[ "$TOTAL_MALICIOUS" -gt "0" ]];then
-		echo -e "Found ${red}$TOTAL_MALICIOUS${reset} malware file(s)"
+		echo -e "On-demand scan result          : Found $TOTAL_MALICIOUS suspicious file(s)"
 		scan_duration
         mode_options
     else
-		echo -e "${green}Clean${reset}: malware not found"
+		echo -e "On-demand scan result          : Clean, suspicous file not found"
     fi
 elif [[ "$STATUS" == "running" ]];then
-	echo -e "${yellow}WARNING${reset}: On-demand scan is already ${yellow}running${reset}"
+	echo -e "On-demand scan status          : WARNING: On-demand scan is already running"
+	pgrep -f imunifyavx|xargs ps
 	exit
 else
-    echo "ImunifyAV on-demand scan: $STATUS"|mail -s "MALWARE SCAN FAILED: [$HOSTNAME] $DATE" "$EMAIL"
+    echo "On-demand scan status          : $STATUS"|mail -s "MALWARE SCAN FAILED: [$HOSTNAME] $DATE" "$EMAIL"
     exit
 fi
  
@@ -496,7 +476,7 @@ if [[ -f "$LOGFILE" ]];then
 	TOTAL_LOG=$(find /var/log/ -name 'imunifyav-*.txt' -type f|wc -l)
 	if [[ "$TOTAL_LOG" -gt "$LOGROTATE" ]];then
 		DELETELOG=$(( "$TOTAL_LOG" - "$LOGROTATE" ))
-		find /var/log/ -name 'imunifyav-*.txt' -type f|sort|head -n "$DELETELOG"|while read -r DELETE;do
+		find /var/log/ -name 'imunifyavx-*.txt' -type f|sort|head -n "$DELETELOG"|while read -r DELETE;do
 			if [ -f "$DELETE" ];then
 				rm -f "$DELETE";
 			fi
