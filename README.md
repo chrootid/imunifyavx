@@ -1,5 +1,5 @@
 # imunifyavx
-ImunifyAVX is a malware scanner tools powered by ImunifyAV with some additional features
+ImunifyAVX is a malware scanner tool powered by ImunifyAV with some additional features
 
 # Supported OS
 1. Stand Alone
