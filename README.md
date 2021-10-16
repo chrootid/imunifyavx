@@ -49,6 +49,12 @@ bash imunifyavx.sh -r -e=your@email.com -m=2 -p=/home/
 # Command Output
 ```
 # sudo bash imunifyavx.sh --email=sysadmin@server.com --mode=2 --path=/home/user01/public_html/
+#########################################################
+##   ImunifyAVX - Malware Scanner Tool
+##   2021 - Adit Thaufan <adit@chrootid.com>
+##   https://github.com/chrootid/imunifyavx
+#########################################################
+...
 Checking for Operating System  : CentOS Linux 7 (Core)
 Checking for mailx             : OK
 Checking for user              : OK
