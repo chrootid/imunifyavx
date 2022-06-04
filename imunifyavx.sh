@@ -164,10 +164,10 @@ imunify-antivirus malware malicious list --by-scan-id "$SCANID"|awk '{print $18}
         } >> "$TMPLOG"
         if [[ "$MODE" -eq 1 ]];then # ls
             echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-            imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$12}' |sort >> "$TMPLOG2"
+            imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$17}' |sort >> "$TMPLOG2"
         elif [[ "$MODE" -eq 2 ]];then # chmod ls
             echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-            imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$12}' |sort >> "$TMPLOG2"
+            imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$17}' |sort >> "$TMPLOG2"
             imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8}'|sort|uniq|while read -r LIST;do
 			# if malware file still exist, then change its file permission
             if [ -f "$LIST" ];then
@@ -176,7 +176,7 @@ imunify-antivirus malware malicious list --by-scan-id "$SCANID"|awk '{print $18}
             done
         elif [[ "$MODE" -eq 3 ]];then # chmod chattr ls
             echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-            imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$12}'|sort >> "$TMPLOG2"
+            imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$17}'|sort >> "$TMPLOG2"
             imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8}'|sort|uniq|while read -r LIST;do
             if [ -f "$LIST" ];then
                 chmod 000 "$LIST"
@@ -220,24 +220,24 @@ function print_scan_result {
 # MODE action
 function mode_action {
 	LIMIT="$TOTAL_MALICIOUS"
-	imunify-antivirus malware malicious list --by-scan-id "$SCANID"|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read -r USERS;do
+	imunify-antivirus malware malicious list --by-scan-id "$SCANID"|awk '{print $18}'|grep -Ev "USERNAME"|sort|uniq|while read -r USERS;do
 	echo "Username        : '$USERS'" > "$TMPLOG"
 	message_tips
 	if [[ "$MODE" -eq 1 ]];then # ls
 		echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $4"\t\t\t"$12}' |sort >> "$TMPLOG2"
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$17}' |sort >> "$TMPLOG2"
 	elif [[ "$MODE" -eq 2 ]];then # chmod ls
 		echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $4"\t\t\t"$12}' |sort >> "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $4}'|sort|uniq|while read -r LIST;do
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$17}' |sort >> "$TMPLOG2"
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8}'|sort|uniq|while read -r LIST;do
 			if [ -f "$LIST" ];then
 				chmod 000 "$LIST"
 			fi
 		done
 	elif [[ "$MODE" -eq 3 ]];then # chmod chattr ls
 		echo -e "Location: \t\t\t Type:" > "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $4"\t\t\t"$12}'|sort >> "$TMPLOG2"
-		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $4}'|sort|uniq|while read -r LIST;do
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8"\t\t\t"$17}'|sort >> "$TMPLOG2"
+		imunify-antivirus malware malicious list --user "$USERS" --limit "$LIMIT" --by-scan-id "$SCANID"|awk '/True/ {print $8}'|sort|uniq|while read -r LIST;do
 			if [ -f "$LIST" ];then
 				chmod 000 "$LIST"
 				chattr +i "$LIST"
