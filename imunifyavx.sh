@@ -68,9 +68,9 @@ function load_scan_result {
 	COMPLETED=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $1}')
 	ERROR=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $4}')
 	PATHSCAN=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $5}')
-	SCAN_TYPE=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $7}')
-	STARTED=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $9}')
-	TOTAL=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $10}')
+	SCAN_TYPE=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $8}')
+	STARTED=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $2}')
+	TOTAL=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $11}')
 	TOTAL_FILES=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $11}')
     TOTAL_MALICIOUS=$(imunify-antivirus malware on-demand list|grep "$SCANID"|awk '{print $12}')
 }
@@ -150,9 +150,9 @@ function standalone_mode_process {
 function cpanel_mode_process {
 print_scan_result
 LIMIT="$TOTAL_MALICIOUS"
-imunify-antivirus malware malicious list --by-scan-id "$SCANID"|awk '{print $13}'|grep -Ev "USERNAME"|sort|uniq|while read -r USERS;do
-        MAINDOMAIN=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d"=" -f7)
-        OWNER=$(grep "/$USERS/" /etc/userdatadomains|grep "=main="|cut -d'=' -f3)
+imunify-antivirus malware malicious list --by-scan-id "$SCANID"|awk '{print $18}'|grep -Ev "USERNAME"|sort|uniq|while read -r USERS;do
+        MAINDOMAIN=$(grep "\/$USERS\/" /etc/userdatadomains|grep "=main="|cut -d"=" -f7)
+        OWNER=$(grep "\/$USERS\/" /etc/userdatadomains|grep "=main="|cut -d'=' -f3)
 	CONTACT=$(awk -F '=' '/CONTACTEMAIL=/ {print $2}' /var/cpanel/users/"$USERS")
         TOTALMAL=$(imunify-antivirus malware malicious list --limit "$LIMIT" --by-scan-id "$SCANID" |grep -c "$USERS")
         echo "Username        : $USERS" > "$TMPLOG"
