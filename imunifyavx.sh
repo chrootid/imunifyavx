@@ -457,7 +457,6 @@ fi
 # signature update process
 echo -e "Checking for signatures update : Updating "
 echo -e "   sigs: $(imunify-antivirus update sigs) "
-echo -e "   eula: $(imunify-antivirus update eula) "
 echo -e "Checking for signatures update : Done "
 
 # scan process
